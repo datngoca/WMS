@@ -11,20 +11,16 @@ import lombok.Setter;
 public class StockMovement extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = true)
-    private Long orderId;
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "order_id", nullable = true)
+    // private orderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_warehouse_id", nullable = true)
-    private Warehouse fromWarehouse;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_warehouse_id", nullable = true)
-    private Warehouse toWarehouse;
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private Warehouse warehouse;
 
     private Integer quantity;
 

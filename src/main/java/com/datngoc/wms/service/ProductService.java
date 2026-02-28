@@ -1,7 +1,6 @@
 package com.datngoc.wms.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -29,10 +28,11 @@ public class ProductService {
 
     // 3. Create product (check SKU exists yet)
     public Product createProduct(Product product) {
-        Optional<Product> isPresent = productRepository.findBySku(product.getSku());
-        if (isPresent != null) {
-            throw new RuntimeException("Sản phẩm đã tồn tại");
+        boolean isPresent = productRepository.findBySku(product.getSku()).isPresent();
+        if (isPresent) {
+            new RuntimeException("Sản phẩm đã tồn tại");
         }
+
         return productRepository.save(product);
     }
 
