@@ -8,6 +8,8 @@ import com.datngoc.wms.entity.MovementType;
 import com.datngoc.wms.entity.Product;
 import com.datngoc.wms.entity.StockMovement;
 import com.datngoc.wms.entity.Warehouse;
+import com.datngoc.wms.exception.InsufficientResourcesException;
+import com.datngoc.wms.exception.ResourceNotFoundException;
 import com.datngoc.wms.repository.InventoryRepository;
 import com.datngoc.wms.repository.ProductRepository;
 import com.datngoc.wms.repository.StockMovementRepository;
@@ -29,10 +31,10 @@ public class InventoryService {
         public void addStock(Long productId, Long warehouseId, Integer quantity, String reason) {
                 // B1: Kiểm tra Product và Warehouse có tồn tại không
                 Product product = productRepository.findById(productId)
-                                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại"));
 
                 Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                                .orElseThrow(() -> new RuntimeException("Nhà kho không tồn tại"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Nhà kho không tồn tại"));
 
                 // B2: Kiểm tra xem sản phẩm này đã có bản ghi trong kho này chưa
                 Inventory inventory = inventoryRepository.findByProductIdAndWarehouseId(productId, warehouseId)
@@ -75,7 +77,7 @@ public class InventoryService {
 
                 // B3: Kiểm tra số lượng tồn
                 if (inventory.getQuantity() < quantity) {
-                        throw new RuntimeException(
+                        throw new InsufficientResourcesException(
                                         "Số lượng kho không đủ ( Hiện có : " + inventory.getQuantity() + " yêu cầu: "
                                                         + quantity + " ) ");
                 }

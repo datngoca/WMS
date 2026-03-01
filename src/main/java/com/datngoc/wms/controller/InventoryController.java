@@ -10,6 +10,7 @@ import com.datngoc.wms.dto.InventoryRequestDTO;
 import com.datngoc.wms.service.InventoryService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,7 +23,7 @@ public class InventoryController {
 
     // API Nhập kho
     @PostMapping("/add")
-    public ResponseEntity<String> addStock(@RequestBody InventoryRequestDTO request) {
+    public ResponseEntity<String> addStock(@Valid @RequestBody InventoryRequestDTO request) {
         inventoryService.addStock(request.getProductId(), request.getWarehouseId(), request.getQuantity(),
                 request.getReason());
         return ResponseEntity.ok("Nhập kho thành công!");
@@ -30,7 +31,7 @@ public class InventoryController {
 
     // API Xuất kho
     @PostMapping("/remove")
-    public ResponseEntity<String> removeStock(@RequestBody InventoryRequestDTO request) {
+    public ResponseEntity<String> removeStock(@Valid @RequestBody InventoryRequestDTO request) {
         inventoryService.removeStock(request.getProductId(), request.getWarehouseId(), request.getQuantity(),
                 request.getReason());
         return ResponseEntity.ok("Xuất kho thành công");
