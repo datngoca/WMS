@@ -1,6 +1,7 @@
 package com.datngoc.wms.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,7 @@ public class InventoryController {
 
     // API Nhập kho
     @PostMapping("/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> addStock(@Valid @RequestBody InventoryRequestDTO request) {
         inventoryService.addStock(request.getProductId(), request.getWarehouseId(), request.getQuantity(),
                 request.getReason());
