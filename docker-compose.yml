@@ -1,27 +1,41 @@
-version: '3.8'
 services:
   db:
-  image: mysql:8.0
-  enviroment:
-    MYSQL_DATABASE: wms
-    MYSQL_ROOT_PASSWORD: 02052003
-    MYSQL_USER: datngoc
-    MYSQL_PASSWORD: 02052003
-  ports:
-    - "3306:3306"
-  volumnes:
-    - db_data:/var/lib/mysql
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: wms
+      MYSQL_ROOT_PASSWORD: dat12345
+      MYSQL_USER: datngoc
+      MYSQL_PASSWORD: dat12345
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    # Thêm đoạn này để kiểm tra trạng thái DB
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u$$MYSQL_USER",
+          "-p$$MYSQL_PASSWORD",
+        ]
+      timeout: 5s
+      retries: 10
 
   app:
     build: .
     ports:
-      - "8080:8080"
-    enviroment:
+      - "8081:8080"
+    environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/wms?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: datngoc
-      SPRING_DATASOURCE_PASSWORD: 02052003
+      SPRING_DATASOURCE_PASSWORD: dat12345
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
