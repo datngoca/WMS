@@ -1,4 +1,4 @@
-package com.datngoc.wms.dto;
+package com.datngoc.wms.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

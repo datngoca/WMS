@@ -6,8 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.datngoc.wms.dto.LoginRequestDTO;
-import com.datngoc.wms.dto.LoginResponseDTO;
+import com.datngoc.wms.dto.request.LoginRequestDTO;
+import com.datngoc.wms.dto.response.LoginResponseDTO;
 // import com.datngoc.wms.repository.UserRespository;
 import com.datngoc.wms.security.JwtUtils;
 

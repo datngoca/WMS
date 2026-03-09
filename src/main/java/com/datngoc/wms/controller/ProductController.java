@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.datngoc.wms.entity.Product;
 import com.datngoc.wms.service.ProductService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -23,12 +24,14 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @Operation(summary = "Tạo sản phẩm", description = "API dùng để tạo sản phẩm")
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product request) {
         Product product = productService.createProduct(request);
         return ResponseEntity.ok(product);
     }
 
+    @Operation(summary = "Lấy tất cả sản phẩm", description = "API dùng để lấy tất cả sản phẩm trong DB")
     @GetMapping
     public ResponseEntity<List<Product>> getAllProduct() {
         List<Product> product = productService.getAllProducts();

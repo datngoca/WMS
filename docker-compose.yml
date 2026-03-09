@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  db:
+  image: mysql:8.0
+  enviroment:
+    MYSQL_DATABASE: wms
+    MYSQL_ROOT_PASSWORD: 02052003
+    MYSQL_USER: datngoc
+    MYSQL_PASSWORD: 02052003
+  ports:
+    - "3306:3306"
+  volumnes:
+    - db_data:/var/lib/mysql
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    enviroment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/wms?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: datngoc
+      SPRING_DATASOURCE_PASSWORD: 02052003
+    depends_on:
+      - db
+
+volumes:
+  db_data:
