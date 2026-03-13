@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component;
 import com.datngoc.wms.entity.Role;
 import com.datngoc.wms.entity.User;
 import com.datngoc.wms.repository.RoleRepository;
-import com.datngoc.wms.repository.UserRespository;
+import com.datngoc.wms.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
-    private final UserRespository userRespository;
+    private final UserRepository userRespository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -26,6 +26,12 @@ public class DataInitializer implements CommandLineRunner {
         Role role = roleRepository.findByName("ROLE_ADMIN").orElseGet(() -> {
             Role newRole = new Role();
             newRole.setName("ROLE_ADMIN");
+            return roleRepository.save(newRole);
+        });
+
+        roleRepository.findByName("ROLE_USER").orElseGet(() -> {
+            Role newRole = new Role();
+            newRole.setName("ROLE_USER");
             return roleRepository.save(newRole);
         });
 

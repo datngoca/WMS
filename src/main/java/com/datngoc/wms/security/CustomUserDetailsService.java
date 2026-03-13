@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.datngoc.wms.entity.User;
-import com.datngoc.wms.repository.UserRespository;
+import com.datngoc.wms.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRespository userRespository;
+    private final UserRepository userRespository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.datngoc.wms.dto.request.ProductRequestDTO;
 import com.datngoc.wms.entity.Product;
+import com.datngoc.wms.exception.ResourceNotFoundException;
+import com.datngoc.wms.mapper.ProductMapper;
 import com.datngoc.wms.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
     // 1. Get all products
     public List<Product> getAllProducts() {
@@ -23,37 +27,39 @@ public class ProductService {
     // 2. Find product by SKU
     public Product getProductBySku(String sku) {
         return productRepository.findBySku(sku)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với SKU: " + sku));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với SKU: " + sku));
     }
 
-    // 3. Create product (check SKU exists yet)
-    public Product createProduct(Product product) {
+    // 3. Find product by ID
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + id));
+    }
+
+    // 4. Create product (check SKU exists yet)
+    public Product createProduct(ProductRequestDTO requestDTO) {
+        Product product = productMapper.toEntity(requestDTO);
         boolean isPresent = productRepository.findBySku(product.getSku()).isPresent();
         if (isPresent) {
-            new RuntimeException("Sản phẩm đã tồn tại");
+            throw new RuntimeException("Sản phẩm đã tồn tại");
         }
 
         return productRepository.save(product);
     }
 
-    // 4. Update product
-    public Product updateProduct(Long id, Product productDetails) {
+    // 5. Update product
+    public Product updateProduct(Long id, ProductRequestDTO productDetails) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
-        if (productDetails.getName() != null)
-            product.setName(productDetails.getName());
-        if (productDetails.getCategory() != null)
-            product.setCategory(productDetails.getCategory());
-        if (productDetails.getBasePrice() != null)
-            product.setBasePrice(productDetails.getBasePrice());
+                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại"));
+        productMapper.updateEntityFromDTO(productDetails, product);
 
         return productRepository.save(product);
     }
 
-    // 5. Delete product
+    // 6. Delete product
     public void deleteProduct(Long id) {
         productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại"));
         productRepository.deleteById(id);
     }
 }
