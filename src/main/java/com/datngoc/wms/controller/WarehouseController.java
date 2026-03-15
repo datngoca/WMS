@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,7 +49,7 @@ public class WarehouseController {
     }
 
     @Operation(summary = "Cập nhật thông tin nhà kho", description = "API dùng để cập nhật thông tin nhà kho theo ID")
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Warehouse> updateWarehouse(@PathVariable("id") Long id, @RequestBody WarehouseRequestDTO request) {
         Warehouse response = warehouseService.updateWarehouse(id, request);
         return ResponseEntity.ok(response);

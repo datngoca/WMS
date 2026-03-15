@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,7 +33,7 @@ public class UserController {
     }
 
     @Operation(summary = "Cập nhật thông tin người dùng", description = "API dùng để cập nhật thông tin người dùng (Admin)")
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody AdminUserRequest request) {
         User updatedUser = userService.updateUser(id, request);
         return ResponseEntity.ok(updatedUser);
