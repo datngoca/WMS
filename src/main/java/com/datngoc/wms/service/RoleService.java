@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.datngoc.wms.dto.request.RoleRequestDTO;
 import com.datngoc.wms.entity.Role;
-import com.datngoc.wms.exception.ResourceNotFoundException;
+import com.datngoc.wms.exception.BusinessException;
+import com.datngoc.wms.exception.ErrorCode;
 import com.datngoc.wms.mapper.RoleMapper;
 import com.datngoc.wms.repository.RoleRepository;
 
@@ -28,6 +29,9 @@ public class RoleService {
         if (!formattedName.startsWith("ROLE_")) {
             formattedName = "ROLE_" + formattedName;
         }
+        if (roleRepository.findByName(formattedName).isPresent()) {
+            throw new BusinessException(ErrorCode.ROLE_ALREADY_EXISTS, formattedName);
+        }
         request.setName(formattedName);
         Role role = roleMapper.toEntity(request);
         return roleRepository.save(role);
@@ -40,20 +44,20 @@ public class RoleService {
 
     // 3. Get role by id
     public Role getRoleById(Long id) {
-        return roleRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role với id: " + id));
+        return roleRepository.findById(id).orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
     }
 
     // 4. Update role
     public Role updateRole(Long id, RoleRequestDTO roleRequestDTO) {
         Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role với id: " + id));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
         roleMapper.updateEntityFromDTO(roleRequestDTO, role);
         return roleRepository.save(role);
     }
 
     // 5. Delete role
     public void deleteRole(Long id) {
-        roleRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role với id: " + id));
+        roleRepository.findById(id).orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
         roleRepository.deleteById(id);
     }
 }

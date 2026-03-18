@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.datngoc.wms.dto.request.WarehouseRequestDTO;
 import com.datngoc.wms.entity.Warehouse;
-import com.datngoc.wms.exception.ResourceNotFoundException;
+import com.datngoc.wms.exception.BusinessException;
+import com.datngoc.wms.exception.ErrorCode;
 import com.datngoc.wms.mapper.WarehouseMapper;
 import com.datngoc.wms.repository.WarehouseRepository;
 
@@ -32,20 +33,20 @@ public class WarehouseService {
 
     public Warehouse getWarehouseById(Long id) {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy kho với id: " + id));
+                .orElseThrow(() -> new BusinessException(ErrorCode.WAREHOUSE_NOT_FOUND));
         return warehouse;
     }
 
     public Warehouse updateWarehouse(Long id, WarehouseRequestDTO warehouseRequestDTO) {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy kho với id: " + id));
+                .orElseThrow(() -> new BusinessException(ErrorCode.WAREHOUSE_NOT_FOUND));
         warehouseMapper.updateEntityFromDTO(warehouseRequestDTO, warehouse);
         return warehouseRepository.save(warehouse);
     }
 
     public void deleteWarehouse(Long id) {
         warehouseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy kho với id: " + id));
+                .orElseThrow(() -> new BusinessException(ErrorCode.WAREHOUSE_NOT_FOUND));
         warehouseRepository.deleteById(id);
     }
 }

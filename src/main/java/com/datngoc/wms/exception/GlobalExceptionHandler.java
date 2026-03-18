@@ -1,55 +1,79 @@
 package com.datngoc.wms.exception;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.datngoc.wms.dto.response.ApiResponseDTO;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @RestControllerAdvice
+@RequiredArgsConstructor
+@Slf4j
 public class GlobalExceptionHandler {
-    // 1. Bắt lỗi Validation
+    private final MessageSource messageSource;
+
+    // 1. Bắt lỗi Validation (DTO check)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponseDTO<Map<String, String>>> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 
         // Logic: Duyệt qua danh sách lỗi (ex.getBindingResult().getFieldErrors())
         // Đẩy vào Map: fieldName -> errorMessage
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             String fieldName = error.getField();
-            String errorMessage = error.getDefaultMessage();
+            String errorMessage = messageSource.getMessage(error, LocaleContextHolder.getLocale());
 
             errors.put(fieldName, errorMessage);
         });
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        String msg = messageSource.getMessage(ErrorCode.VALIDATION_FAILED.getMessageKey(), null,
+                LocaleContextHolder.getLocale());
+        ApiResponseDTO<Map<String, String>> response = ApiResponseDTO.<Map<String, String>>builder()
+                .code(ErrorCode.VALIDATION_FAILED.name())
+                .message(msg)
+                .data(errors)
+                .build();
+
+        return ResponseEntity.status(ErrorCode.VALIDATION_FAILED.getHttpStatus()).body(response);
     }
 
-    // 2. Bắt lỗi RuntimeException
+    // 2. Bắt lỗi RuntimeException (Lỗi hệ thống không mong muốn)
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    public ResponseEntity<ApiResponseDTO<String>> handleRuntimeException(RuntimeException ex) {
+        log.error("Unhandled Exception: ", ex);
+        String msg = messageSource.getMessage(ErrorCode.INTERNAL_SERVER_ERROR.getMessageKey(), null,
+                LocaleContextHolder.getLocale());
+        ApiResponseDTO<String> response = ApiResponseDTO.<String>builder()
+                .code(ErrorCode.INTERNAL_SERVER_ERROR.name())
+                .message(msg)
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus()).body(response);
     }
 
-    // 3. Bắt lỗi ResourceNotFoundException
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    // 4. Bắt lỗi BusinessException
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> BusinessException(BusinessException ex) {
+        String msg = messageSource.getMessage(ex.getErrorCode().getMessageKey(), ex.getArgs(),
+                LocaleContextHolder.getLocale());
+
+        ApiResponseDTO<Void> response = ApiResponseDTO.<Void>builder()
+                .code(ex.getErrorCode().name())
+                .message(msg)
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(response);
     }
 
-    // 4. Bắt lỗi InsufficientStockException
-    @ExceptionHandler(InsufficientResourcesException.class)
-    public ResponseEntity<String> handleInsufficientResourcesException(InsufficientResourcesException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    // 5. Bắt lỗi BadCredentialException
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<String> handleBadCredentialException(BadCredentialsException ex){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
-    }
 }

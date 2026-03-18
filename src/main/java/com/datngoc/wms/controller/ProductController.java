@@ -2,7 +2,8 @@ package com.datngoc.wms.controller;
 
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.datngoc.wms.dto.request.ProductRequestDTO;
+import com.datngoc.wms.dto.response.ApiResponseDTO;
 import com.datngoc.wms.entity.Product;
+import com.datngoc.wms.exception.SuccessCode;
 import com.datngoc.wms.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Tag(name = "Product", description = "Các API liên quan product")
 public class ProductController {
-
+    private final MessageSource messageSource;
     private final ProductService productService;
 
     @Operation(summary = "Tạo sản phẩm", description = "API dùng để tạo sản phẩm")
@@ -37,9 +40,16 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Tạo sản phẩm thất bại")
     })
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody ProductRequestDTO request) {
+    public ApiResponseDTO<Product> createProduct(@RequestBody ProductRequestDTO request) {
         Product product = productService.createProduct(request);
-        return ResponseEntity.ok(product);
+
+        String msg = messageSource.getMessage(SuccessCode.CREATE_SUCCESS.getMessageKey(), null,
+                LocaleContextHolder.getLocale());
+        return ApiResponseDTO.<Product>builder()
+                .code(SuccessCode.CREATE_SUCCESS.name())
+                .message(msg)
+                .data(product)
+                .build();
     }
 
     @Operation(summary = "Lấy tất cả sản phẩm", description = "API dùng để lấy tất cả sản phẩm trong DB")
@@ -49,9 +59,16 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
     })
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProduct() {
-        List<Product> product = productService.getAllProducts();
-        return ResponseEntity.ok(product);
+    public ApiResponseDTO<List<Product>> getAllProduct() {
+        List<Product> products = productService.getAllProducts();
+        String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                LocaleContextHolder.getLocale());
+
+        return ApiResponseDTO.<List<Product>>builder()
+                .code(SuccessCode.GET_SUCCESS.name())
+                .message(msg)
+                .data(products)
+                .build();
     }
 
     @Operation(summary = "Lấy sản phẩm theo ID", description = "API dùng để lấy sản phẩm theo ID")
@@ -61,9 +78,16 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable("id") Long id) {
+    public ApiResponseDTO<Product> getProductById(@PathVariable("id") Long id) {
         Product product = productService.getProductById(id);
-        return ResponseEntity.ok(product);
+        String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                LocaleContextHolder.getLocale());
+
+        return ApiResponseDTO.<Product>builder()
+                .code(SuccessCode.GET_SUCCESS.name())
+                .message(msg)
+                .data(product)
+                .build();
     }
 
     @Operation(summary = "Cập nhật sản phẩm", description = "API dùng để cập nhật sản phẩm theo ID")
@@ -73,9 +97,16 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody ProductRequestDTO request) {
+    public ApiResponseDTO<Product> updateProduct(@PathVariable("id") Long id, @RequestBody ProductRequestDTO request) {
         Product product = productService.updateProduct(id, request);
-        return ResponseEntity.ok(product);
+        String msg = messageSource.getMessage(SuccessCode.UPDATE_SUCCESS.getMessageKey(), null,
+                LocaleContextHolder.getLocale());
+
+        return ApiResponseDTO.<Product>builder()
+                .code(SuccessCode.UPDATE_SUCCESS.name())
+                .message(msg)
+                .data(product)
+                .build();
     }
 
     @Operation(summary = "Xóa sản phẩm", description = "API dùng để xóa sản phẩm theo ID")
@@ -85,9 +116,15 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long id) {
+    public ApiResponseDTO<Void> deleteProduct(@PathVariable("id") Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
+        String msg = messageSource.getMessage(SuccessCode.DELETE_SUCCESS.getMessageKey(), null,
+                LocaleContextHolder.getLocale());
+
+        return ApiResponseDTO.<Void>builder()
+                .code(SuccessCode.DELETE_SUCCESS.name())
+                .message(msg)
+                .build();
     }
 
 }

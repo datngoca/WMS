@@ -8,8 +8,8 @@ import com.datngoc.wms.entity.MovementType;
 import com.datngoc.wms.entity.Product;
 import com.datngoc.wms.entity.StockMovement;
 import com.datngoc.wms.entity.Warehouse;
-import com.datngoc.wms.exception.InsufficientResourcesException;
-import com.datngoc.wms.exception.ResourceNotFoundException;
+import com.datngoc.wms.exception.BusinessException;
+import com.datngoc.wms.exception.ErrorCode;
 import com.datngoc.wms.repository.InventoryRepository;
 import com.datngoc.wms.repository.ProductRepository;
 import com.datngoc.wms.repository.StockMovementRepository;
@@ -31,10 +31,10 @@ public class InventoryService {
         public void addStock(Long productId, Long warehouseId, Integer quantity, String reason) {
                 // B1: Kiểm tra Product và Warehouse có tồn tại không
                 Product product = productRepository.findById(productId)
-                                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại"));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
                 Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                                .orElseThrow(() -> new ResourceNotFoundException("Nhà kho không tồn tại"));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.WAREHOUSE_NOT_FOUND));
 
                 // B2: Kiểm tra xem sản phẩm này đã có bản ghi trong kho này chưa
                 Inventory inventory = inventoryRepository.findByProductIdAndWarehouseId(productId, warehouseId)
@@ -66,20 +66,20 @@ public class InventoryService {
         public void removeStock(Long productId, Long warehouseId, Integer quantity, String reason) {
                 // B1: Kiểm tra Product và Warehouse có tồn tại không
                 Product product = productRepository.findById(productId)
-                                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
                 Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                                .orElseThrow(() -> new RuntimeException("Nhà kho không tồn tại"));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.WAREHOUSE_NOT_FOUND));
 
                 // B2: Tìm Inventory tương ứng
                 Inventory inventory = inventoryRepository.findByProductIdAndWarehouseId(productId, warehouseId)
-                                .orElseThrow(() -> new RuntimeException("Sản phẩm không có trong kho"));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_IN_WAREHOUSE,
+                                                product.getName(), warehouse.getName()));
 
                 // B3: Kiểm tra số lượng tồn
                 if (inventory.getQuantity() < quantity) {
-                        throw new InsufficientResourcesException(
-                                        "Số lượng kho không đủ ( Hiện có : " + inventory.getQuantity() + " yêu cầu: "
-                                                        + quantity + " ) ");
+                        throw new BusinessException(ErrorCode.STOCK_SHORTAGE, product.getName(), quantity,
+                                        inventory.getQuantity());
                 }
 
                 // B4: Trừ số lượng

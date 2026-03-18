@@ -15,7 +15,8 @@ import com.datngoc.wms.dto.response.LoginResponseDTO;
 import com.datngoc.wms.dto.response.RegisterResponseDTO;
 import com.datngoc.wms.entity.Role;
 import com.datngoc.wms.entity.User;
-import com.datngoc.wms.exception.ResourceNotFoundException;
+import com.datngoc.wms.exception.BusinessException;
+import com.datngoc.wms.exception.ErrorCode;
 import com.datngoc.wms.mapper.RegisterMapper;
 import com.datngoc.wms.repository.RoleRepository;
 import com.datngoc.wms.repository.UserRepository;
@@ -52,9 +53,9 @@ public class AuthService {
     public RegisterResponseDTO register(RegisterRequestDTO registerRequestDTO) {
         Boolean isExist = userRespository.findByUsername(registerRequestDTO.getUsername()).isPresent();
         if (isExist) {
-            throw new RuntimeException("Người dùng đã tồn tại");
+            throw new BusinessException(ErrorCode.USER_ALREADY_EXISTS);
         }
-        Role roleUser =  roleRepository.findByName("ROLE_USER").orElseThrow(()-> new ResourceNotFoundException("Không tìm thấy vai trò: ROLE_USER"));
+        Role roleUser =  roleRepository.findByName("ROLE_USER").orElseThrow(()-> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
         User user = registerMapper.toEntity(registerRequestDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(Set.of(roleUser));

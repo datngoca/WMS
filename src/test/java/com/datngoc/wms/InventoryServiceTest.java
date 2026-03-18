@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.datngoc.wms.entity.Inventory;
 import com.datngoc.wms.entity.Product;
 import com.datngoc.wms.entity.Warehouse;
-import com.datngoc.wms.exception.InsufficientResourcesException;
+import com.datngoc.wms.exception.BusinessException;
 import com.datngoc.wms.repository.InventoryRepository;
 import com.datngoc.wms.repository.ProductRepository;
 import com.datngoc.wms.repository.StockMovementRepository;
@@ -91,7 +91,7 @@ public class InventoryServiceTest {
                 .thenReturn(Optional.of(mockInventory));
 
         // 3. Sử dụng assertThrows để kiểm tra lỗi
-        assertThrows(InsufficientResourcesException.class, () -> {
+        assertThrows(BusinessException.class, () -> {
             inventoryService.removeStock(productId, warehouseId, quantityToRemove, "Xuất quá số lượng");
         });
     }
