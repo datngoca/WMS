@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.datngoc.wms.dto.request.AdminUserRequest;
+import com.datngoc.wms.dto.response.AdminUserResponseDTO;
 import com.datngoc.wms.entity.User;
 import com.datngoc.wms.exception.BusinessException;
 import com.datngoc.wms.exception.ErrorCode;
@@ -20,20 +21,20 @@ public class UserService {
     private final UserMapper userMapper;
 
     // 1. Tạo mới người dùng (Admin)
-    public User createUser(AdminUserRequest request) {
+    public AdminUserResponseDTO createUser(AdminUserRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new BusinessException(ErrorCode.USER_ALREADY_EXISTS, request.getUsername());
         }
         User user = userMapper.toEntity(request);
-        return userRepository.save(user);
+        return userMapper.toDto(userRepository.save(user));
     }
 
     // 2. Cập nhật thông tin người dùng (Admin)
-    public User updateUser(Long id, AdminUserRequest request) {
+    public AdminUserResponseDTO updateUser(Long id, AdminUserRequest request) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         userMapper.updateEntityFromDTO(request, existingUser);
-        return userRepository.save(existingUser);
+        return userMapper.toDto(userRepository.save(existingUser));
     }
 
     // 3. Xóa người dùng (Admin)
@@ -44,13 +45,17 @@ public class UserService {
     }
 
     // 4. Lấy thông tin người dùng (Admin)
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
+    public AdminUserResponseDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        return userMapper.toDto(user);
     }
 
     // 5. Lấy danh sách tất cả người dùng (Admin)
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<AdminUserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 }
+

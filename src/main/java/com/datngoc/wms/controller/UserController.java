@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.datngoc.wms.dto.request.AdminUserRequest;
+import com.datngoc.wms.dto.response.AdminUserResponseDTO;
 import com.datngoc.wms.dto.response.ApiResponseDTO;
-import com.datngoc.wms.entity.User;
 import com.datngoc.wms.exception.SuccessCode;
 import com.datngoc.wms.service.UserService;
 
@@ -33,12 +33,12 @@ public class UserController {
 
     @Operation(summary = "Tạo người dùng mới", description = "API dùng để tạo người dùng mới (Admin)")
     @PostMapping
-    public ApiResponseDTO<User> createUser(@RequestBody AdminUserRequest request) {
-        User createdUser = userService.createUser(request);
+    public ApiResponseDTO<AdminUserResponseDTO> createUser(@RequestBody AdminUserRequest request) {
+        AdminUserResponseDTO createdUser = userService.createUser(request);
 
         String msg = messageSource.getMessage(SuccessCode.CREATE_SUCCESS.getMessageKey(), null,
                 LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<User>builder()
+        return ApiResponseDTO.<AdminUserResponseDTO>builder()
                 .code(SuccessCode.CREATE_SUCCESS.name())
                 .message(msg)
                 .data(createdUser)
@@ -47,11 +47,11 @@ public class UserController {
 
     @Operation(summary = "Cập nhật thông tin người dùng", description = "API dùng để cập nhật thông tin người dùng (Admin)")
     @PutMapping("/{id}")
-    public ApiResponseDTO<User> updateUser(@PathVariable("id") Long id, @RequestBody AdminUserRequest request) {
-        User updatedUser = userService.updateUser(id, request);
+    public ApiResponseDTO<AdminUserResponseDTO> updateUser(@PathVariable("id") Long id, @RequestBody AdminUserRequest request) {
+        AdminUserResponseDTO updatedUser = userService.updateUser(id, request);
         String msg = messageSource.getMessage(SuccessCode.UPDATE_SUCCESS.getMessageKey(), null,
                 LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<User>builder()
+        return ApiResponseDTO.<AdminUserResponseDTO>builder()
                 .code(SuccessCode.UPDATE_SUCCESS.name())
                 .message(msg)
                 .data(updatedUser)
@@ -72,11 +72,11 @@ public class UserController {
 
     @Operation(summary = "Lấy thông tin người dùng theo ID", description = "API dùng để lấy thông tin người dùng theo ID (Admin)")
     @GetMapping("/{id}")
-    public ApiResponseDTO<User> getUserById(@PathVariable("id") Long id) {
-        User user = userService.getUserById(id);
+    public ApiResponseDTO<AdminUserResponseDTO> getUserById(@PathVariable("id") Long id) {
+        AdminUserResponseDTO user = userService.getUserById(id);
         String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
                 LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<User>builder()
+        return ApiResponseDTO.<AdminUserResponseDTO>builder()
                 .code(SuccessCode.GET_SUCCESS.name())
                 .message(msg)
                 .data(user)
@@ -85,11 +85,11 @@ public class UserController {
 
     @Operation(summary = "Lấy danh sách tất cả người dùng", description = "API dùng để lấy danh sách tất cả người dùng (Admin)")
     @GetMapping
-    public ApiResponseDTO<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ApiResponseDTO<List<AdminUserResponseDTO>> getAllUsers() {
+        List<AdminUserResponseDTO> users = userService.getAllUsers();
         String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
                 LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<List<User>>builder()
+        return ApiResponseDTO.<List<AdminUserResponseDTO>>builder()
                 .code(SuccessCode.GET_SUCCESS.name())
                 .message(msg)
                 .data(users)
