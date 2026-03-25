@@ -4,7 +4,7 @@
 
 [![Java Version](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-brightgreen?style=for-the-badge&logo=spring-boot)](https://spring.io/projects/spring-boot)
-[![PostgreSQL](https://img.shields.io/badge/Postgres-16-blue?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-blue?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge&logo=docker)](https://www.docker.com/)
 
 ---
@@ -42,7 +42,7 @@ Dưới đây là sơ đồ thực thể (ERD) được thiết kế để tối
 - **Language:** Java 21 (LTS)
 - **Framework:** Spring Boot 3.x
 - **Persistence:** Spring Data JPA (Hibernate)
-- **Database:** PostgreSQL / MySQL
+- **Database:** MySQL
 - **Security:** Spring Security & JWT (Json Web Token)
 - **Validation:** Hibernate Validator (Bean Validation)
 - **Mapping:** MapStruct / ModelMapper
@@ -56,7 +56,6 @@ Dưới đây là sơ đồ thực thể (ERD) được thiết kế để tối
 - ✅ **Quản lý mã định danh:** Hỗ trợ quét và quản lý sản phẩm thông qua mã SKU và Barcode duy nhất.
 - ✅ **Quản lý tồn kho thời gian thực:** Tự động khấu trừ số lượng khi đơn hàng được xác nhận.
 - ✅ **Bảo mật stateless:** Sử dụng JWT để xác thực người dùng, giúp hệ thống nhẹ và dễ mở rộng.
-- ✅ **Xử lý Batch:** Hỗ trợ tính năng Import dữ liệu sản phẩm từ file Excel (Apache POI).
 - ✅ **API chuẩn RESTful:** Hệ thống API được thiết kế chuẩn xác, dễ dàng tích hợp với các ứng dụng Frontend hoặc Mobile.
 
 ---
