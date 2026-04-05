@@ -1,16 +1,24 @@
 package com.datngoc.wms.entity;
 
+import com.datngoc.wms.entity.json.DeliveryInfo;
+import com.datngoc.wms.entity.json.ProductDetailedSpec;
+import com.datngoc.wms.entity.json.ProductSpec;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity // Nhãn dán: Class này là một bảng trong DB
-@Table(name = "products") // Nhãn dán: Tên bảng duows DB sẽ là products
+@Table(name = "products") // Nhãn dán: Tên bảng được DB sẽ là products
 @Getter
 @Setter
 public class Product extends BaseEntity {
+
     @Column(unique = true, nullable = false)
     private String sku;
 
@@ -18,8 +26,31 @@ public class Product extends BaseEntity {
 
     private String category;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "base_price")
     private BigDecimal basePrice;
+
+    @Column(name = "original_price")
+    private BigDecimal originalPrice;
+
+    // ----- CÁC TRƯỜNG LƯU DẠNG JSON -----
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json")
+    private DeliveryInfo delivery;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json")
+    private List<ProductSpec> specs;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "detailed_specs", columnDefinition = "json")
+    private List<ProductDetailedSpec> detailedSpecs;
+
+    // ----- QUAN HỆ VỚI BẢNG OPTION -----
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductOption> options = new ArrayList<>();
 
     public Product() {
     }
