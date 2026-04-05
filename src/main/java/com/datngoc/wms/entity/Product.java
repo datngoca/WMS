@@ -1,12 +1,11 @@
 package com.datngoc.wms.entity;
 
-import com.datngoc.wms.entity.json.DeliveryInfo;
 import com.datngoc.wms.entity.json.ProductDetailedSpec;
 import com.datngoc.wms.entity.json.ProductSpec;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.JdbcTypeCode;  
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
@@ -36,9 +35,6 @@ public class Product extends BaseEntity {
     private BigDecimal originalPrice;
 
     // ----- CÁC TRƯỜNG LƯU DẠNG JSON -----
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
-    private DeliveryInfo delivery;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json")
