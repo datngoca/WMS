@@ -5,12 +5,14 @@ import com.datngoc.wms.entity.json.ProductSpec;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;  
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity // Nhãn dán: Class này là một bảng trong DB
 @Table(name = "products") // Nhãn dán: Tên bảng được DB sẽ là products
@@ -23,7 +25,9 @@ public class Product extends BaseEntity {
 
     private String name;
 
-    private String category;
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(name = "product_categories", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories = new HashSet<>();
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -31,8 +35,8 @@ public class Product extends BaseEntity {
     @Column(name = "base_price")
     private BigDecimal basePrice;
 
-    @Column(name = "original_price")
-    private BigDecimal originalPrice;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductUnit> productUnits;
 
     // ----- CÁC TRƯỜNG LƯU DẠNG JSON -----
 
