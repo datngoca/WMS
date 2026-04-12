@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.datngoc.wms.utils.StringUtils;
+
 @Entity
 @Table(name = "categories")
 @Getter
@@ -35,7 +37,7 @@ public class Category extends BaseEntity {
     public void preSave() {
         // Cập nhật slug
         if (this.name != null) {
-            this.slug = this.name.toLowerCase().trim().replace(" ", "-");
+            this.slug = StringUtils.toSlug(this.name);
         }
 
         // Cập nhật path và depth

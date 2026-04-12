@@ -14,6 +14,7 @@ import com.datngoc.wms.entity.Category;
 public interface CategoryMapper {
 
     @Mapping(target = "parentId", source = "parent.id")
+    @Mapping(target = "parentName", source = "parent.name")
     CategoryResponseDTO toDTO(Category category);
 
     Category toEntity(CategoryRequestDTO categoryRequestDTO);

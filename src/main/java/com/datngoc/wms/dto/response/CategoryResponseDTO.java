@@ -14,6 +14,7 @@ public class CategoryResponseDTO {
     private String slug;
     private String description;
     private Long parentId;
+    private String parentName;
     private Integer depth;
     private List<CategoryResponseDTO> children = new ArrayList<>();
 }
