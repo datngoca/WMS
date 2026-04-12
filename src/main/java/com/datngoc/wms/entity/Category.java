@@ -14,7 +14,37 @@ import lombok.Setter;
 public class Category extends BaseEntity {
     private String name;
 
+    private String slug;
+
+    private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Category parent;
+
+    private String path; // Ví dụ: "1/5/12/"
+
+    private Integer depth; // Độ sâu
+
     @ManyToMany(mappedBy = "categories")
     private Set<Product> products = new HashSet<>();
 
+    // Helper method để cập nhật path trước khi save
+    @PrePersist
+    @PreUpdate
+    public void preSave() {
+        // Cập nhật slug
+        if (this.name != null) {
+            this.slug = this.name.toLowerCase().trim().replace(" ", "-");
+        }
+
+        // Cập nhật path và depth
+        if (parent == null) {
+            this.path = "";
+            this.depth = 0;
+        } else {
+            this.path = parent.getPath() + parent.getId() + "/";
+            this.depth = parent.getDepth() + 1;
+        }
+    }
 }
