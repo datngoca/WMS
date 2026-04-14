@@ -9,4 +9,6 @@ import lombok.Setter;
 @Setter
 public class Unit extends BaseEntity {
     private String name;
+    private String code;
+    private String description;
 }
