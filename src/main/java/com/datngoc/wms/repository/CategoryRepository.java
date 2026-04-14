@@ -14,5 +14,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     // Tìm các danh mục gốc
     List<Category> findByParentIsNull();
 
+    boolean existsByParentId(Long parentId);
+
     boolean existsByName(String name);
 }

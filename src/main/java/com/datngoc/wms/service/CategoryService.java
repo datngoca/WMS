@@ -118,6 +118,9 @@ public class CategoryService {
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+        if (categoryRepository.existsByParentId(id)) {
+            throw new BusinessException(ErrorCode.CATEGORY_CANNOT_DELETE_WITH_CHILD, category.getName());
+        }
         categoryRepository.delete(category);
     }
 
