@@ -3,7 +3,8 @@ package com.datngoc.wms.dto.response;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
+import com.datngoc.wms.dto.common.ParentCategory;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,11 +19,4 @@ public class CategoryResponseDTO {
     private Integer depth;
     private List<CategoryResponseDTO> children = new ArrayList<>();
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public static class ParentCategory {
-        private Long id;
-        private String name;
-    }
 }

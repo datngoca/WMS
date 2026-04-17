@@ -7,6 +7,7 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import com.datngoc.wms.dto.common.ParentCategory;
 import com.datngoc.wms.dto.request.CategoryRequestDTO;
 import com.datngoc.wms.dto.response.CategoryResponseDTO;
 import com.datngoc.wms.entity.Category;
@@ -15,33 +16,34 @@ import com.datngoc.wms.entity.Category;
 public interface CategoryMapper {
 
     // ENTITY → DTO
-    @Mapping(target = "parent", source = "parent", qualifiedByName = "mapParent")
+    @Mapping(target = "parent", source = "parent", qualifiedByName = "mapParentToDTO")
     CategoryResponseDTO toDTO(Category category);
 
     // DTO → ENTITY
-    @Mapping(target = "parent", source = "parentId", qualifiedByName = "mapParentId")
+    @Mapping(target = "parent", source = "parent", qualifiedByName = "mapParentToEntity")
     Category toEntity(CategoryRequestDTO categoryRequestDTO);
 
     // -------- CUSTOM --------
 
-    @Named("mapParentId")
-    default Category mapParent(Long parentId) {
-        if (parentId == null)
-            return null;
-
-        Category parent = new Category();
-        parent.setId(parentId); // chỉ cần set id
-        return parent;
-    }
-
-    @Named("mapParent")
-    default CategoryResponseDTO.ParentCategory mapParent(Category parent) {
+    @Named("mapParentToDTO")
+    default ParentCategory mapParent(Category parent) {
         if (parent == null)
             return null;
 
-        return new CategoryResponseDTO.ParentCategory(
-                parent.getId(),
-                parent.getName());
+        ParentCategory parentCategory = new ParentCategory();
+        parentCategory.setId(parent.getId());
+        parentCategory.setName(parent.getName());
+        return parentCategory;
+    }
+
+    @Named("mapParentToEntity")
+    default Category mapParent(ParentCategory parent) {
+        if (parent == null)
+            return null;
+
+        Category category = new Category();
+        category.setId(parent.getId());
+        return category;
     }
 
 }

@@ -28,8 +28,8 @@ public class CategoryService {
     @Transactional
     public Category createCategory(CategoryRequestDTO categoryRequest) {
         Category category = categoryMapper.toEntity(categoryRequest);
-        if (categoryRequest.getParentId() != null) {
-            Category parent = categoryRepository.findById(categoryRequest.getParentId())
+        if (categoryRequest.getParent() != null) {
+            Category parent = categoryRepository.findById(categoryRequest.getParent().getId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
             category.setParent(parent);
         }
@@ -98,7 +98,7 @@ public class CategoryService {
 
         // 2. Nếu đổi danh mục cha
         Long currentParentId = category.getParent() != null ? category.getParent().getId() : null;
-        Long newParentId = categoryRequest.getParentId();
+        Long newParentId = categoryRequest.getParent().getId();
 
         category = categoryRepository.save(category); // Lưu lại thông tin cơ bản trước
 
