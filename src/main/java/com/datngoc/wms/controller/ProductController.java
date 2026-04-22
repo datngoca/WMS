@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.datngoc.wms.dto.request.ProductRequestDTO;
 import com.datngoc.wms.dto.response.ApiResponseDTO;
+import com.datngoc.wms.dto.response.ProductResponseDTO;
 import com.datngoc.wms.entity.Product;
 import com.datngoc.wms.exception.SuccessCode;
+import com.datngoc.wms.mapper.ProductMapper;
 import com.datngoc.wms.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,101 +32,103 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Tag(name = "Product", description = "Các API liên quan product")
 public class ProductController {
-    private final MessageSource messageSource;
-    private final ProductService productService;
+        private final MessageSource messageSource;
+        private final ProductService productService;
+        private final ProductMapper productMapper;
 
-    @Operation(summary = "Tạo sản phẩm", description = "API dùng để tạo sản phẩm")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tạo sản phẩm thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
-            @ApiResponse(responseCode = "404", description = "Tạo sản phẩm thất bại")
-    })
-    @PostMapping
-    public ApiResponseDTO<Product> createProduct(@RequestBody ProductRequestDTO request) {
-        Product product = productService.createProduct(request);
+        @Operation(summary = "Tạo sản phẩm", description = "API dùng để tạo sản phẩm")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Tạo sản phẩm thành công"),
+                        @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
+                        @ApiResponse(responseCode = "404", description = "Tạo sản phẩm thất bại")
+        })
+        @PostMapping
+        public ApiResponseDTO<ProductResponseDTO> createProduct(@RequestBody ProductRequestDTO request) {
+                Product product = productService.createProduct(request);
 
-        String msg = messageSource.getMessage(SuccessCode.CREATE_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<Product>builder()
-                .code(SuccessCode.CREATE_SUCCESS.name())
-                .message(msg)
-                .data(product)
-                .build();
-    }
+                String msg = messageSource.getMessage(SuccessCode.CREATE_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<ProductResponseDTO>builder()
+                                .code(SuccessCode.CREATE_SUCCESS.name())
+                                .message(msg)
+                                .data(productMapper.toDto(product))
+                                .build();
+        }
 
-    @Operation(summary = "Lấy tất cả sản phẩm", description = "API dùng để lấy tất cả sản phẩm trong DB")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lấy sản phẩm thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
-    })
-    @GetMapping
-    public ApiResponseDTO<List<Product>> getAllProduct() {
-        List<Product> products = productService.getAllProducts();
-        String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
+        @Operation(summary = "Lấy tất cả sản phẩm", description = "API dùng để lấy tất cả sản phẩm trong DB")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Lấy sản phẩm thành công"),
+                        @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
+                        @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
+        })
+        @GetMapping
+        public ApiResponseDTO<List<ProductResponseDTO>> getAllProduct() {
+                List<ProductResponseDTO> products = productService.getAllProducts();
+                String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
 
-        return ApiResponseDTO.<List<Product>>builder()
-                .code(SuccessCode.GET_SUCCESS.name())
-                .message(msg)
-                .data(products)
-                .build();
-    }
+                return ApiResponseDTO.<List<ProductResponseDTO>>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message(msg)
+                                .data(products)
+                                .build();
+        }
 
-    @Operation(summary = "Lấy sản phẩm theo ID", description = "API dùng để lấy sản phẩm theo ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lấy sản phẩm thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
-    })
-    @GetMapping("/{id}")
-    public ApiResponseDTO<Product> getProductById(@PathVariable("id") Long id) {
-        Product product = productService.getProductById(id);
-        String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
+        @Operation(summary = "Lấy sản phẩm theo ID", description = "API dùng để lấy sản phẩm theo ID")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Lấy sản phẩm thành công"),
+                        @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
+                        @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
+        })
+        @GetMapping("/{id}")
+        public ApiResponseDTO<ProductResponseDTO> getProductById(@PathVariable("id") Long id) {
+                Product product = productService.getProductById(id);
+                String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
 
-        return ApiResponseDTO.<Product>builder()
-                .code(SuccessCode.GET_SUCCESS.name())
-                .message(msg)
-                .data(product)
-                .build();
-    }
+                return ApiResponseDTO.<ProductResponseDTO>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message(msg)
+                                .data(productMapper.toDto(product))
+                                .build();
+        }
 
-    @Operation(summary = "Cập nhật sản phẩm", description = "API dùng để cập nhật sản phẩm theo ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật sản phẩm thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
-    })
-    @PutMapping("/{id}")
-    public ApiResponseDTO<Product> updateProduct(@PathVariable("id") Long id, @RequestBody ProductRequestDTO request) {
-        Product product = productService.updateProduct(id, request);
-        String msg = messageSource.getMessage(SuccessCode.UPDATE_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
+        @Operation(summary = "Cập nhật sản phẩm", description = "API dùng để cập nhật sản phẩm theo ID")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Cập nhật sản phẩm thành công"),
+                        @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
+                        @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
+        })
+        @PutMapping("/{id}")
+        public ApiResponseDTO<ProductResponseDTO> updateProduct(@PathVariable("id") Long id,
+                        @RequestBody ProductRequestDTO request) {
+                Product product = productService.updateProduct(id, request);
+                String msg = messageSource.getMessage(SuccessCode.UPDATE_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
 
-        return ApiResponseDTO.<Product>builder()
-                .code(SuccessCode.UPDATE_SUCCESS.name())
-                .message(msg)
-                .data(product)
-                .build();
-    }
+                return ApiResponseDTO.<ProductResponseDTO>builder()
+                                .code(SuccessCode.UPDATE_SUCCESS.name())
+                                .message(msg)
+                                .data(productMapper.toDto(product))
+                                .build();
+        }
 
-    @Operation(summary = "Xóa sản phẩm", description = "API dùng để xóa sản phẩm theo ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Xóa sản phẩm thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
-    })
-    @DeleteMapping("/{id}")
-    public ApiResponseDTO<Void> deleteProduct(@PathVariable("id") Long id) {
-        productService.deleteProduct(id);
-        String msg = messageSource.getMessage(SuccessCode.DELETE_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
+        @Operation(summary = "Xóa sản phẩm", description = "API dùng để xóa sản phẩm theo ID")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "204", description = "Xóa sản phẩm thành công"),
+                        @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
+                        @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
+        })
+        @DeleteMapping("/{id}")
+        public ApiResponseDTO<Void> deleteProduct(@PathVariable("id") Long id) {
+                productService.deleteProduct(id);
+                String msg = messageSource.getMessage(SuccessCode.DELETE_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
 
-        return ApiResponseDTO.<Void>builder()
-                .code(SuccessCode.DELETE_SUCCESS.name())
-                .message(msg)
-                .build();
-    }
+                return ApiResponseDTO.<Void>builder()
+                                .code(SuccessCode.DELETE_SUCCESS.name())
+                                .message(msg)
+                                .build();
+        }
 
 }

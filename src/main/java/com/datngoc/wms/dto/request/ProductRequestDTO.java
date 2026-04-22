@@ -2,13 +2,16 @@ package com.datngoc.wms.dto.request;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import com.datngoc.wms.dto.common.ParentCategory;
 import com.datngoc.wms.entity.json.ProductDetailedSpec;
 import com.datngoc.wms.entity.json.ProductSpec;
 
@@ -23,8 +26,8 @@ public class ProductRequestDTO {
     private String name;
 
     @Schema(description = "Danh mục sản phẩm")
-    @NotBlank(message = "Danh mục không được để trống")
-    private String category;
+    @NotEmpty(message = "Danh mục không được để trống")
+    private Set<ParentCategory> categories;
 
     @Schema(description = "Mô tả sản phẩm")
     private String description;

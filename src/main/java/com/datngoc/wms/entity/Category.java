@@ -29,6 +29,7 @@ public class Category extends BaseEntity {
     private Integer depth; // Độ sâu
 
     @ManyToMany(mappedBy = "categories")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Set<Product> products = new HashSet<>();
 
     // Helper method để cập nhật path trước khi save
