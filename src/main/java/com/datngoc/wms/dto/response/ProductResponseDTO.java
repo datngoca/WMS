@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.datngoc.wms.dto.common.ParentCategory;
+import com.datngoc.wms.dto.common.ProductOptionDTO;
+import com.datngoc.wms.entity.ProductOption;
 import com.datngoc.wms.entity.json.ProductDetailedSpec;
 import com.datngoc.wms.entity.json.ProductSpec;
 
@@ -20,4 +22,5 @@ public class ProductResponseDTO {
     private BigDecimal basePrice;
     private List<ProductSpec> specs;
     private List<ProductDetailedSpec> detailedSpecs;
+    private List<ProductOptionDTO> options;
 }

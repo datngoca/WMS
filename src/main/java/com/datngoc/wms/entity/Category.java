@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import com.datngoc.wms.utils.StringUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "categories")
@@ -29,7 +30,7 @@ public class Category extends BaseEntity {
     private Integer depth; // Độ sâu
 
     @ManyToMany(mappedBy = "categories")
-    @com.fasterxml.jackson.annotation.JsonIgnore
+    @JsonIgnore
     private Set<Product> products = new HashSet<>();
 
     // Helper method để cập nhật path trước khi save

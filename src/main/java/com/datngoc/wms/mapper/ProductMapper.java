@@ -42,4 +42,15 @@ public interface ProductMapper {
         category.setId(parentCategory.getId());
         return category;
     }
+    @AfterMapping
+    default void linkProductOptions(@MappingTarget Product product) {
+        if (product.getOptions() != null) {
+            product.getOptions().forEach(option -> {
+                option.setProduct(product);
+                if (option.getValues() != null) {
+                    option.getValues().forEach(value -> value.setOption(option));
+                }
+            });
+        }
+    }
 }

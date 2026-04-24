@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import com.datngoc.wms.dto.common.ParentCategory;
+import com.datngoc.wms.dto.common.ProductOptionDTO;
 import com.datngoc.wms.entity.json.ProductDetailedSpec;
 import com.datngoc.wms.entity.json.ProductSpec;
 
@@ -42,4 +43,7 @@ public class ProductRequestDTO {
 
     @Schema(description = "Thông số kỹ thuật chi tiết")
     private List<ProductDetailedSpec> detailedSpecs;
+
+    @Schema(description = "Các tùy chọn sản phẩm")
+    private List<ProductOptionDTO> options;
 }
