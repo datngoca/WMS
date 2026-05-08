@@ -1,18 +1,24 @@
 package com.datngoc.wms.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.datngoc.wms.dto.request.ProductRequestDTO;
+import com.datngoc.wms.dto.request.ProductUnitRequestDTO;
 import com.datngoc.wms.dto.response.ProductResponseDTO;
 import com.datngoc.wms.entity.Category;
 import com.datngoc.wms.entity.Product;
+import com.datngoc.wms.entity.ProductUnit;
+import com.datngoc.wms.entity.Unit;
 import com.datngoc.wms.exception.BusinessException;
 import com.datngoc.wms.exception.ErrorCode;
 import com.datngoc.wms.mapper.ProductMapper;
+import com.datngoc.wms.mapper.ProductUnitMapper;
 import com.datngoc.wms.repository.CategoryRepository;
 import com.datngoc.wms.repository.ProductRepository;
+import com.datngoc.wms.repository.UnitRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +32,8 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
+    private final UnitRepository unitRepository;
+    private final ProductUnitMapper productUnitMapper;
 
     // 1. Get all products
     public List<ProductResponseDTO> getAllProducts() {
@@ -60,6 +68,20 @@ public class ProductService {
             product.setCategories(managedCategories);
         }
 
+        if (requestDTO.getProductUnits() != null && !requestDTO.getProductUnits().isEmpty()) {
+            List<ProductUnit> unitsToSave = new ArrayList<>();
+            for (ProductUnitRequestDTO unitDto : requestDTO.getProductUnits()) {
+                Unit unit = unitRepository.findById(unitDto.getUnitId())
+                        .orElseThrow(() -> new BusinessException(ErrorCode.UNIT_NOT_FOUND));
+                ProductUnit productUnit = productUnitMapper.toEntity(unitDto);
+                productUnit.setUnit(unit);
+                productUnit.setProduct(product);
+
+                unitsToSave.add(productUnit);
+            }
+            product.setProductUnits(unitsToSave);
+        }
+
         return productRepository.save(product);
     }
 
@@ -79,6 +101,52 @@ public class ProductService {
             product.getCategories().clear();
         }
 
+        if (productDetails.getProductUnits() != null) {
+            List<ProductUnit> currentUnits = product.getProductUnits();
+            if (currentUnits == null) {
+                currentUnits = new java.util.ArrayList<>();
+                product.setProductUnits(currentUnits);
+            }
+
+            // Tạo map từ request để tra cứu nhanh bằng unitId
+            java.util.Map<Long, ProductUnitRequestDTO> requestedUnitMap = productDetails.getProductUnits().stream()
+                    .collect(java.util.stream.Collectors.toMap(ProductUnitRequestDTO::getUnitId, dto -> dto));
+
+            // Duyệt danh sách hiện tại: Xóa cái không có trong request, cập nhật cái trùng
+            // khớp
+            java.util.Iterator<ProductUnit> iterator = currentUnits.iterator();
+            while (iterator.hasNext()) {
+                ProductUnit existingUnit = iterator.next();
+                if (existingUnit.getUnit() == null) {
+                    iterator.remove();
+                    continue;
+                }
+                ProductUnitRequestDTO matchingDto = requestedUnitMap.get(existingUnit.getUnit().getId());
+
+                if (matchingDto != null) {
+                    // Update dữ liệu unit đã có bằng MapStruct
+                    productUnitMapper.updateEntityFromDTO(matchingDto, existingUnit);
+
+                    // Loại khỏi map để chừa lại các unit cần Thêm Mới
+                    requestedUnitMap.remove(existingUnit.getUnit().getId());
+                } else {
+                    // Xóa unit không có trong request truyền lên
+                    iterator.remove();
+                }
+            }
+
+            // Phần còn lại trong map là các Unit mới tinh chưa từng có -> Thêm mới
+            for (ProductUnitRequestDTO newUnitDto : requestedUnitMap.values()) {
+                Unit unit = unitRepository.findById(newUnitDto.getUnitId())
+                        .orElseThrow(() -> new BusinessException(ErrorCode.UNIT_NOT_FOUND));
+
+                ProductUnit newProductUnit = productUnitMapper.toEntity(newUnitDto);
+                newProductUnit.setUnit(unit);
+                newProductUnit.setProduct(product);
+
+                currentUnits.add(newProductUnit);
+            }
+        }
         return productRepository.save(product);
     }
 
@@ -87,5 +155,11 @@ public class ProductService {
         productRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_EXISTS));
         productRepository.deleteById(id);
+    }
+
+    public List<ProductResponseDTO> getProductsBySlug(String slug) {
+        Category category = categoryRepository.findBySlug(slug)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+        return productRepository.findByCategories_Id(category.getId()).stream().map(productMapper::toDto).toList();
     }
 }

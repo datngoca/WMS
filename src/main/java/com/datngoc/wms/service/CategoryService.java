@@ -98,7 +98,7 @@ public class CategoryService {
 
         // 2. Nếu đổi danh mục cha
         Long currentParentId = category.getParent() != null ? category.getParent().getId() : null;
-        Long newParentId = categoryRequest.getParent().getId();
+        Long newParentId = categoryRequest.getParent() != null ? categoryRequest.getParent().getId() : null;
 
         category = categoryRepository.save(category); // Lưu lại thông tin cơ bản trước
 

@@ -11,12 +11,14 @@ import com.datngoc.wms.entity.Product;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProductMapper {
 
+    @Mapping(target = "productUnits", ignore = true)
     @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategoryToEntity")
     Product toEntity(ProductRequestDTO dto);
 
     @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategoryToDto")
     ProductResponseDTO toDto(Product product);
 
+    @Mapping(target = "productUnits", ignore = true)
     @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategoryToEntity")
     void updateEntityFromDTO(ProductRequestDTO dto, @MappingTarget Product entity);
 
@@ -42,6 +44,7 @@ public interface ProductMapper {
         category.setId(parentCategory.getId());
         return category;
     }
+
     @AfterMapping
     default void linkProductOptions(@MappingTarget Product product) {
         if (product.getOptions() != null) {

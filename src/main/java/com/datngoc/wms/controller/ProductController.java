@@ -131,4 +131,23 @@ public class ProductController {
                                 .build();
         }
 
+        @Operation(summary = "Lấy sản phẩm theo danh mục", description = "API dùng để lấy sản phẩm theo danh mục")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Lấy sản phẩm thành công"),
+                        @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
+                        @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
+        })
+        @GetMapping("/category/{slug}")
+        public ApiResponseDTO<List<ProductResponseDTO>> getProductsBySlug(@PathVariable("slug") String slug) {
+                List<ProductResponseDTO> products = productService.getProductsBySlug(slug);
+                String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+
+                return ApiResponseDTO.<List<ProductResponseDTO>>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message(msg)
+                                .data(products)
+                                .build();
+        }
+
 }

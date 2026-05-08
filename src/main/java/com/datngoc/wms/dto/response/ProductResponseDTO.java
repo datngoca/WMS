@@ -23,4 +23,5 @@ public class ProductResponseDTO {
     private List<ProductSpec> specs;
     private List<ProductDetailedSpec> detailedSpecs;
     private List<ProductOptionDTO> options;
+    private List<ProductUnitResponseDTO> productUnits;
 }
