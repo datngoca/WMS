@@ -15,11 +15,6 @@ public class Inventory extends BaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    // Mối quan hệ với WareHouse
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "warehouse_id", nullable = false)
-    private Warehouse warehouse;
-
     @Column(nullable = false)
     private Integer quantity;
 

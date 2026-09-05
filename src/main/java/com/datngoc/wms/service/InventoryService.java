@@ -7,14 +7,11 @@ import com.datngoc.wms.entity.Inventory;
 import com.datngoc.wms.entity.MovementType;
 import com.datngoc.wms.entity.Product;
 import com.datngoc.wms.entity.StockMovement;
-import com.datngoc.wms.entity.Warehouse;
 import com.datngoc.wms.exception.BusinessException;
 import com.datngoc.wms.exception.ErrorCode;
 import com.datngoc.wms.repository.InventoryRepository;
 import com.datngoc.wms.repository.ProductRepository;
 import com.datngoc.wms.repository.StockMovementRepository;
-import com.datngoc.wms.repository.WarehouseRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,24 +21,19 @@ public class InventoryService {
         private final InventoryRepository inventoryRepository;
         private final StockMovementRepository stockMovementRepository;
         private final ProductRepository productRepository;
-        private final WarehouseRepository warehouseRepository;
 
         // Logic nhập kho
         @Transactional
-        public void addStock(Long productId, Long warehouseId, Integer quantity, String reason) {
+        public void addStock(Long productId, Integer quantity, String reason) {
                 // B1: Kiểm tra Product và Warehouse có tồn tại không
                 Product product = productRepository.findById(productId)
                                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
-                Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                                .orElseThrow(() -> new BusinessException(ErrorCode.WAREHOUSE_NOT_FOUND));
-
                 // B2: Kiểm tra xem sản phẩm này đã có bản ghi trong kho này chưa
-                Inventory inventory = inventoryRepository.findByProductIdAndWarehouseId(productId, warehouseId)
+                Inventory inventory = inventoryRepository.findByProductId(productId)
                                 .orElseGet(() -> {
                                         Inventory newInv = new Inventory();
                                         newInv.setProduct(product);
-                                        newInv.setWarehouse(warehouse);
                                         newInv.setQuantity(0);
                                         return newInv;
                                 });
@@ -55,7 +47,6 @@ public class InventoryService {
                 // B5 : Tạo StockMovement
                 StockMovement movement = new StockMovement();
                 movement.setType(MovementType.INBOUND);
-                movement.setWarehouse(warehouse);
                 movement.setQuantity(quantity);
                 movement.setProduct(product);
                 movement.setReason(reason);
@@ -63,18 +54,15 @@ public class InventoryService {
         }
 
         // Logic xuất kho
-        public void removeStock(Long productId, Long warehouseId, Integer quantity, String reason) {
-                // B1: Kiểm tra Product và Warehouse có tồn tại không
+        public void removeStock(Long productId, Integer quantity, String reason) {
+                // B1: Kiểm tra Product có tồn tại không
                 Product product = productRepository.findById(productId)
                                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
-                Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                                .orElseThrow(() -> new BusinessException(ErrorCode.WAREHOUSE_NOT_FOUND));
-
                 // B2: Tìm Inventory tương ứng
-                Inventory inventory = inventoryRepository.findByProductIdAndWarehouseId(productId, warehouseId)
+                Inventory inventory = inventoryRepository.findByProductId(productId)
                                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_IN_WAREHOUSE,
-                                                product.getName(), warehouse.getName()));
+                                                product.getName()));
 
                 // B3: Kiểm tra số lượng tồn
                 if (inventory.getQuantity() < quantity) {
@@ -90,7 +78,6 @@ public class InventoryService {
                 StockMovement stockMovement = new StockMovement();
                 stockMovement.setType(MovementType.OUTBOUND);
                 stockMovement.setProduct(product);
-                stockMovement.setWarehouse(warehouse);
                 stockMovement.setQuantity(quantity);
                 stockMovement.setReason(reason);
                 stockMovementRepository.save(stockMovement);
