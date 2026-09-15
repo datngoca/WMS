@@ -15,7 +15,7 @@ import com.datngoc.wms.exception.ErrorCode;
 import com.datngoc.wms.mapper.CategoryMapper;
 import com.datngoc.wms.repository.CategoryRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,8 +28,8 @@ public class CategoryService {
     @Transactional
     public Category createCategory(CategoryRequestDTO categoryRequest) {
         Category category = categoryMapper.toEntity(categoryRequest);
-        if (categoryRequest.getParent() != null) {
-            Category parent = categoryRepository.findById(categoryRequest.getParent().getId())
+        if (categoryRequest.getParentId() != null) {
+            Category parent = categoryRepository.findById(categoryRequest.getParentId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
             category.setParent(parent);
         }
@@ -56,6 +56,7 @@ public class CategoryService {
         updateCategoryHierarchy(category, newParent);
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryResponseDTO> getCategoryTree() {
         // Get all category from Database
         List<Category> categories = categoryRepository.findAll();
@@ -83,6 +84,13 @@ public class CategoryService {
         return roots;
     }
 
+    @Transactional(readOnly = true)
+    public CategoryResponseDTO getCategoryById(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+        return categoryMapper.toDTO(category);
+    }
+
     @Transactional
     public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO categoryRequest) {
         Category category = categoryRepository.findById(id)
@@ -98,7 +106,7 @@ public class CategoryService {
 
         // 2. Nếu đổi danh mục cha
         Long currentParentId = category.getParent() != null ? category.getParent().getId() : null;
-        Long newParentId = categoryRequest.getParent() != null ? categoryRequest.getParent().getId() : null;
+        Long newParentId = categoryRequest.getParentId() != null ? categoryRequest.getParentId() : null;
 
         category = categoryRepository.save(category); // Lưu lại thông tin cơ bản trước
 
@@ -115,6 +123,7 @@ public class CategoryService {
         return categoryMapper.toDTO(category);
     }
 
+    @Transactional
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));

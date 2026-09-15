@@ -20,13 +20,13 @@ public interface CategoryMapper {
     CategoryResponseDTO toDTO(Category category);
 
     // DTO → ENTITY
-    @Mapping(target = "parent", source = "parent", qualifiedByName = "mapParentToEntity")
+    @Mapping(target = "parent", source = "parentId", qualifiedByName = "mapParentToEntity")
     Category toEntity(CategoryRequestDTO categoryRequestDTO);
 
     // -------- CUSTOM --------
 
     @Named("mapParentToDTO")
-    default ParentCategory mapParent(Category parent) {
+    default ParentCategory mapParentToDTO(Category parent) {
         if (parent == null)
             return null;
 
@@ -37,12 +37,12 @@ public interface CategoryMapper {
     }
 
     @Named("mapParentToEntity")
-    default Category mapParent(ParentCategory parent) {
-        if (parent == null)
+    default Category mapParentToEntity(Long parentId) {
+        if (parentId == null)
             return null;
 
         Category category = new Category();
-        category.setId(parent.getId());
+        category.setId(parentId);
         return category;
     }
 

@@ -8,7 +8,7 @@ import com.datngoc.wms.dto.response.ProductResponseDTO;
 import com.datngoc.wms.entity.Category;
 import com.datngoc.wms.entity.Product;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProductMapper {
 
     @Mapping(target = "productUnits", ignore = true)
@@ -22,10 +22,8 @@ public interface ProductMapper {
     @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategoryToEntity")
     void updateEntityFromDTO(ProductRequestDTO dto, @MappingTarget Product entity);
 
-    // ProductResponseDTO toDto(Product product);
-
     @Named("mapCategoryToDto")
-    default ParentCategory mapCategory(Category category) {
+    default ParentCategory mapCategoryToDto(Category category) {
         if (category == null) {
             return null;
         }
@@ -36,7 +34,7 @@ public interface ProductMapper {
     }
 
     @Named("mapCategoryToEntity")
-    default Category mapCategory(ParentCategory parentCategory) {
+    default Category mapCategoryToEntity(ParentCategory parentCategory) {
         if (parentCategory == null) {
             return null;
         }

@@ -3,7 +3,11 @@ package com.datngoc.wms.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.datngoc.wms.dto.request.ProductRequestDTO;
 import com.datngoc.wms.dto.request.ProductUnitRequestDTO;
@@ -36,8 +40,10 @@ public class ProductService {
     private final ProductUnitMapper productUnitMapper;
 
     // 1. Get all products
-    public List<ProductResponseDTO> getAllProducts() {
-        return productRepository.findAll().stream().map(productMapper::toDto).toList();
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDTO> getAllProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return productRepository.findAll(pageable).map(productMapper::toDto);
     }
 
     // 2. Find product by SKU
@@ -157,6 +163,7 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> getProductsBySlug(String slug) {
         Category category = categoryRepository.findBySlug(slug)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));

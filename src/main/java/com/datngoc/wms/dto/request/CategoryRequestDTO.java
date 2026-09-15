@@ -10,5 +10,5 @@ import lombok.Setter;
 public class CategoryRequestDTO {
     private String name;
     private String description;
-    private ParentCategory parent;
+    private Long parentId;
 }
