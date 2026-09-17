@@ -13,6 +13,10 @@ import lombok.Setter;
 public class ProductUnit extends BaseEntity {
     private String name;
 
+    private String sku;
+
+    private String barcode;
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;

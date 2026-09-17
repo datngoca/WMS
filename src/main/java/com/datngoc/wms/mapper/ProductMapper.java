@@ -27,19 +27,19 @@ public interface ProductMapper {
         if (category == null) {
             return null;
         }
-        CategoryRef parentCategory = new CategoryRef();
-        parentCategory.setId(category.getId());
-        parentCategory.setName(category.getName());
-        return parentCategory;
+        CategoryRef categoryRef = new CategoryRef();
+        categoryRef.setId(category.getId());
+        categoryRef.setName(category.getName());
+        return categoryRef;
     }
 
     @Named("mapCategoryToEntity")
-    default Category mapCategoryToEntity(ParentCategory parentCategory) {
-        if (parentCategory == null) {
+    default Category mapCategoryToEntity(Long id) {
+        if (id == null) {
             return null;
         }
         Category category = new Category();
-        category.setId(parentCategory.getId());
+        category.setId(id);
         return category;
     }
 

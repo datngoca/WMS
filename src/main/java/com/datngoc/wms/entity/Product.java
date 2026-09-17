@@ -19,6 +19,9 @@ import java.util.Set;
 @Setter
 public class Product extends BaseEntity {
 
+    @Column(unique = true, nullable = false)
+    private String sku;
+
     private String name;
 
     @ManyToMany

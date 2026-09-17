@@ -30,10 +30,10 @@ public interface CategoryMapper {
         if (parent == null)
             return null;
 
-        CategoryRef parentCategory = new CategoryRef();
-        parentCategory.setId(parent.getId());
-        parentCategory.setName(parent.getName());
-        return parentCategory;
+        CategoryRef categoryRef = new CategoryRef();
+        categoryRef.setId(parent.getId());
+        categoryRef.setName(parent.getName());
+        return categoryRef;
     }
 
     @Named("mapParentToEntity")

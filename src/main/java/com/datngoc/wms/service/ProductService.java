@@ -68,7 +68,7 @@ public class ProductService {
 
         if (requestDTO.getCategories() != null && !requestDTO.getCategories().isEmpty()) {
             Set<Category> managedCategories = requestDTO.getCategories().stream()
-                    .map(c -> categoryRepository.findById(c.getId())
+                    .map(categoryId -> categoryRepository.findById(categoryId)
                             .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND)))
                     .collect(Collectors.toSet());
             product.setCategories(managedCategories);
@@ -99,7 +99,7 @@ public class ProductService {
 
         if (productDetails.getCategories() != null && !productDetails.getCategories().isEmpty()) {
             Set<Category> managedCategories = productDetails.getCategories().stream()
-                    .map(c -> categoryRepository.findById(c.getId())
+                    .map(categoryId -> categoryRepository.findById(categoryId)
                             .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND)))
                     .collect(Collectors.toSet());
             product.setCategories(managedCategories);

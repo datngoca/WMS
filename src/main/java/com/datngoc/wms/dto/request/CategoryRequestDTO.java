@@ -1,7 +1,5 @@
 package com.datngoc.wms.dto.request;
 
-import com.datngoc.wms.dto.common.ParentCategory;
-
 import lombok.Getter;
 import lombok.Setter;
 
