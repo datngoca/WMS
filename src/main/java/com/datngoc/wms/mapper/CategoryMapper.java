@@ -7,7 +7,7 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-import com.datngoc.wms.dto.common.ParentCategory;
+import com.datngoc.wms.dto.common.CategoryRef;
 import com.datngoc.wms.dto.request.CategoryRequestDTO;
 import com.datngoc.wms.dto.response.CategoryResponseDTO;
 import com.datngoc.wms.entity.Category;
@@ -26,11 +26,11 @@ public interface CategoryMapper {
     // -------- CUSTOM --------
 
     @Named("mapParentToDTO")
-    default ParentCategory mapParentToDTO(Category parent) {
+    default CategoryRef mapParentToDTO(Category parent) {
         if (parent == null)
             return null;
 
-        ParentCategory parentCategory = new ParentCategory();
+        CategoryRef parentCategory = new CategoryRef();
         parentCategory.setId(parent.getId());
         parentCategory.setName(parent.getName());
         return parentCategory;

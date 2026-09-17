@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ParentCategory {
+public class CategoryRef {
     private Long id;
     private String name;
 }

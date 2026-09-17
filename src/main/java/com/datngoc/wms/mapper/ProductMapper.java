@@ -2,7 +2,7 @@ package com.datngoc.wms.mapper;
 
 import org.mapstruct.*;
 
-import com.datngoc.wms.dto.common.ParentCategory;
+import com.datngoc.wms.dto.common.CategoryRef;
 import com.datngoc.wms.dto.request.ProductRequestDTO;
 import com.datngoc.wms.dto.response.ProductResponseDTO;
 import com.datngoc.wms.entity.Category;
@@ -23,11 +23,11 @@ public interface ProductMapper {
     void updateEntityFromDTO(ProductRequestDTO dto, @MappingTarget Product entity);
 
     @Named("mapCategoryToDto")
-    default ParentCategory mapCategoryToDto(Category category) {
+    default CategoryRef mapCategoryToDto(Category category) {
         if (category == null) {
             return null;
         }
-        ParentCategory parentCategory = new ParentCategory();
+        CategoryRef parentCategory = new CategoryRef();
         parentCategory.setId(category.getId());
         parentCategory.setName(category.getName());
         return parentCategory;
