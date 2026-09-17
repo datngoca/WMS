@@ -9,7 +9,6 @@ import com.datngoc.wms.entity.Inventory;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
-    Optional<Inventory> findByProductIdAndWarehouseId(Long productId, Long warehouseId);
+    Optional<Inventory> findByProductId(Long productId);
 
-    List<Inventory> findByWarehouseId(Long warehouseId);
 }

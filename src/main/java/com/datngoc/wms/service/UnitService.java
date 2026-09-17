@@ -2,6 +2,9 @@ package com.datngoc.wms.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.datngoc.wms.dto.request.UnitRequestDTO;
@@ -30,8 +33,14 @@ public class UnitService {
         return unitRepository.save(unit);
     }
 
-    public List<Unit> getAllUnits() {
-        return unitRepository.findAll();
+    public Page<Unit> getAllUnits(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return unitRepository.findAll(pageable);
+    }
+
+    public Unit getUnitById(Long id) {
+        return unitRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.UNIT_NOT_FOUND));
     }
 
     @Transactional

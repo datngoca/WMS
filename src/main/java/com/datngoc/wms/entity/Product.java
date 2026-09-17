@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,9 +19,6 @@ import java.util.Set;
 @Setter
 public class Product extends BaseEntity {
 
-    @Column(unique = true, nullable = false)
-    private String sku;
-
     private String name;
 
     @ManyToMany
@@ -31,9 +27,6 @@ public class Product extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Column(name = "base_price")
-    private BigDecimal basePrice;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductUnit> productUnits;

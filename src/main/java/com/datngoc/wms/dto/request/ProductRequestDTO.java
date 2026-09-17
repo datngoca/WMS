@@ -33,10 +33,9 @@ public class ProductRequestDTO {
     @Schema(description = "Mô tả sản phẩm")
     private String description;
 
-    @Schema(description = "Gía sản phẩm")
-    @NotNull(message = "Gía không được để trống")
-    @Min(value = 1, message = "Gía sản phẩm không được bé hơn 1")
-    private BigDecimal basePrice;
+    @Schema(description = "Đơn vị sản phẩm")
+    @NotEmpty(message = "Đơn vị sản phẩm không được để trống")
+    private List<ProductUnitRequestDTO> productUnits;
 
     @Schema(description = "Thông số nổi bật")
     private List<ProductSpec> specs;

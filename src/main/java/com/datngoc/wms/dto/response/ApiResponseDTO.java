@@ -18,7 +18,17 @@ public class ApiResponseDTO<T> {
     private String code;
     private String message;
     private T data;
-
+    private Meta meta;
     @Builder.Default
     private LocalDateTime timestamp = LocalDateTime.now();
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Meta {
+        private int page;
+        private int size;
+        private long total;
+    }
 }
