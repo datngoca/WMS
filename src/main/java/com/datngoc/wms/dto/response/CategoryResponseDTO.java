@@ -17,6 +17,7 @@ public class CategoryResponseDTO {
     private String description;
     private CategoryRef parent;
     private Integer depth;
+    private Boolean isOpen;
     private List<CategoryResponseDTO> children = new ArrayList<>();
 
 }

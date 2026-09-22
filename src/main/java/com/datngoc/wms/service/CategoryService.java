@@ -36,6 +36,9 @@ public class CategoryService {
         if (categoryRepository.existsByName(categoryRequest.getName())) {
             throw new BusinessException(ErrorCode.CATEGORY_ALREADY_EXISTS, categoryRequest.getName());
         }
+        if (categoryRequest.getIsOpen() != null) {
+            category.setIsOpen(categoryRequest.getIsOpen());
+        }
         return categoryRepository.save(category);
     }
 
@@ -92,6 +95,19 @@ public class CategoryService {
     }
 
     @Transactional
+    public void updateCategoryOpen(Long id, Boolean isOpen) {
+        int updated;
+        if (isOpen != null) {
+            updated = categoryRepository.updateIsOpen(id, isOpen);
+        } else {
+            updated = categoryRepository.toggleIsOpen(id);
+        }
+        if (updated == 0) {
+            throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
+    }
+
+    @Transactional
     public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO categoryRequest) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -103,6 +119,9 @@ public class CategoryService {
         }
         category.setName(categoryRequest.getName());
         category.setDescription(categoryRequest.getDescription());
+        if (categoryRequest.getIsOpen() != null) {
+            category.setIsOpen(categoryRequest.getIsOpen());
+        }
 
         // 2. Nếu đổi danh mục cha
         Long currentParentId = category.getParent() != null ? category.getParent().getId() : null;

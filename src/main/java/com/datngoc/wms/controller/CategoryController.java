@@ -70,6 +70,16 @@ public class CategoryController {
                 .build();
     }
 
+    @PatchMapping("/{id}/open")
+    @Operation(summary = "Cập nhật trạng thái mở/đóng danh mục", description = "API dùng để cập nhật trạng thái open hoặc close của danh mục")
+    public ApiResponseDTO<Void> updateCategoryOpen(@PathVariable Long id, @RequestBody(required = false) Boolean isOpen) {
+        categoryService.updateCategoryOpen(id, isOpen);
+        return ApiResponseDTO.<Void>builder()
+                .code(SuccessCode.UPDATE_SUCCESS.name())
+                .message(SuccessCode.UPDATE_SUCCESS.getMessageKey())
+                .build();
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Lấy danh mục", description = "API dùng để lấy 1 danh mục")
     public ApiResponseDTO<CategoryResponseDTO> getCategory(@PathVariable Long id) {

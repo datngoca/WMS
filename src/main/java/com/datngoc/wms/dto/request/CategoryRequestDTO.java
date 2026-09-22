@@ -9,4 +9,5 @@ public class CategoryRequestDTO {
     private String name;
     private String description;
     private Long parentId;
+    private Boolean isOpen;
 }

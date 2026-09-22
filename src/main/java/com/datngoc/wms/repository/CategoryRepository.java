@@ -29,4 +29,12 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     boolean existsByName(String name);
 
     Optional<Category> findBySlug(String slug);
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
+    @org.springframework.data.jpa.repository.Query("UPDATE Category c SET c.isOpen = :isOpen, c.updatedAt = CURRENT_TIMESTAMP WHERE c.id = :id")
+    int updateIsOpen(@org.springframework.data.repository.query.Param("id") Long id, @org.springframework.data.repository.query.Param("isOpen") Boolean isOpen);
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
+    @org.springframework.data.jpa.repository.Query("UPDATE Category c SET c.isOpen = (CASE WHEN c.isOpen = true THEN false ELSE true END), c.updatedAt = CURRENT_TIMESTAMP WHERE c.id = :id")
+    int toggleIsOpen(@org.springframework.data.repository.query.Param("id") Long id);
 }
