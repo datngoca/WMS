@@ -13,7 +13,8 @@ spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+# Dialect: MariaDB dùng org.hibernate.dialect.MariaDBDialect, MySQL dùng org.hibernate.dialect.MySQLDialect
+spring.jpa.properties.hibernate.dialect=${HIBERNATE_DIALECT:org.hibernate.dialect.MySQLDialect}
 spring.jpa.open-in-view=false
 
 # Swagger / OpenAPI UI Configuration
