@@ -11,4 +11,6 @@ public class UnitResponseDTO {
     @Schema(description = "Tên đơn vị")
     private String name;
 
+    @Schema(description = "Mã đơn vị")
+    private String code;
 }

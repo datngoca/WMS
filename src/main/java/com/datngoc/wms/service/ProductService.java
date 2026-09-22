@@ -1,6 +1,7 @@
 package com.datngoc.wms.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import com.datngoc.wms.mapper.ProductUnitMapper;
 import com.datngoc.wms.repository.CategoryRepository;
 import com.datngoc.wms.repository.ProductRepository;
 import com.datngoc.wms.repository.UnitRepository;
+import com.datngoc.wms.utils.StringUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,23 +49,57 @@ public class ProductService {
     }
 
     // 2. Find product by SKU
-    public Product getProductBySku(String sku) {
-        return productRepository.findBySku(sku)
+    @Transactional(readOnly = true)
+    public ProductResponseDTO getProductBySku(String sku) {
+        Product product = productRepository.findBySku(sku)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SKU_NOT_FOUND, sku));
+        return productMapper.toDto(product);
     }
 
     // 3. Find product by ID
-    public Product getProductById(Long id) {
-        return productRepository.findById(id)
+    @Transactional(readOnly = true)
+    public ProductResponseDTO getProductById(Long id) {
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+        return productMapper.toDto(product);
     }
 
-    // 4. Create product (check SKU exists yet)
+    // Tự động sinh mã SKU theo quy tắc SP-(slug)-00001
+    public String generateSku(String productName) {
+        String slug = StringUtils.toUpperSlug(productName);
+        String prefix = "SP-" + slug + "-";
+
+        List<String> existingSkus = productRepository.findSkusByPrefix(prefix);
+        int maxSeq = 0;
+        for (String sku : existingSkus) {
+            if (sku != null && sku.startsWith(prefix)) {
+                String suffix = sku.substring(prefix.length());
+                try {
+                    int seq = Integer.parseInt(suffix);
+                    if (seq > maxSeq) {
+                        maxSeq = seq;
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return prefix + String.format("%05d", maxSeq + 1);
+    }
+
+    // 4. Create product (check SKU exists yet or auto-generate)
+    @Transactional
     public Product createProduct(ProductRequestDTO requestDTO) {
         Product product = productMapper.toEntity(requestDTO);
-        boolean isPresent = productRepository.findBySku(product.getSku()).isPresent();
-        if (isPresent) {
-            throw new BusinessException(ErrorCode.SKU_ALREADY_EXISTS, requestDTO.getSku());
+
+        // Tự động sinh SKU nếu để trống hoặc null
+        if (product.getSku() == null || product.getSku().trim().isEmpty()) {
+            product.setSku(generateSku(product.getName()));
+        } else {
+            product.setSku(product.getSku().trim());
+            boolean isPresent = productRepository.findBySku(product.getSku()).isPresent();
+            if (isPresent) {
+                throw new BusinessException(ErrorCode.SKU_ALREADY_EXISTS, product.getSku());
+            }
         }
 
         if (requestDTO.getCategories() != null && !requestDTO.getCategories().isEmpty()) {
@@ -75,7 +111,15 @@ public class ProductService {
         }
 
         if (requestDTO.getProductUnits() != null && !requestDTO.getProductUnits().isEmpty()) {
+            Set<Long> seenUnitIds = new HashSet<>();
+            for (ProductUnitRequestDTO unitDto : requestDTO.getProductUnits()) {
+                if (!seenUnitIds.add(unitDto.getUnitId())) {
+                    throw new BusinessException(ErrorCode.DUPLICATE_PRODUCT_UNIT);
+                }
+            }
+
             List<ProductUnit> unitsToSave = new ArrayList<>();
+            int unitIndex = 1;
             for (ProductUnitRequestDTO unitDto : requestDTO.getProductUnits()) {
                 Unit unit = unitRepository.findById(unitDto.getUnitId())
                         .orElseThrow(() -> new BusinessException(ErrorCode.UNIT_NOT_FOUND));
@@ -83,7 +127,18 @@ public class ProductService {
                 productUnit.setUnit(unit);
                 productUnit.setProduct(product);
 
+                // Tự sinh SKU cho đơn vị quy đổi nếu để trống: {productSku}-{unitCode}
+                if (productUnit.getSku() == null || productUnit.getSku().trim().isEmpty()) {
+                    String unitSuffix = (unit.getCode() != null && !unit.getCode().trim().isEmpty())
+                            ? unit.getCode().trim().toUpperCase()
+                            : String.format("U%02d", unitIndex);
+                    productUnit.setSku(product.getSku() + "-" + unitSuffix);
+                } else {
+                    productUnit.setSku(productUnit.getSku().trim());
+                }
+
                 unitsToSave.add(productUnit);
+                unitIndex++;
             }
             product.setProductUnits(unitsToSave);
         }
@@ -92,6 +147,7 @@ public class ProductService {
     }
 
     // 5. Update product
+    @Transactional
     public Product updateProduct(Long id, ProductRequestDTO productDetails) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_EXISTS));
@@ -108,6 +164,13 @@ public class ProductService {
         }
 
         if (productDetails.getProductUnits() != null) {
+            Set<Long> seenUnitIds = new HashSet<>();
+            for (ProductUnitRequestDTO unitDto : productDetails.getProductUnits()) {
+                if (!seenUnitIds.add(unitDto.getUnitId())) {
+                    throw new BusinessException(ErrorCode.DUPLICATE_PRODUCT_UNIT);
+                }
+            }
+
             List<ProductUnit> currentUnits = product.getProductUnits();
             if (currentUnits == null) {
                 currentUnits = new java.util.ArrayList<>();
@@ -157,6 +220,7 @@ public class ProductService {
     }
 
     // 6. Delete product
+    @Transactional
     public void deleteProduct(Long id) {
         productRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_EXISTS));

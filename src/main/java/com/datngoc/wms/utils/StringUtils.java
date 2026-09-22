@@ -23,4 +23,16 @@ public class StringUtils {
                 .replaceAll("\\s+", "-")       // Replace one or more spaces with a single hyphen
                 .replaceAll("[^a-z0-9-]", ""); // Remove all other non-alphanumeric/non-hyphen characters
     }
+
+    public static String toUpperSlug(String input) {
+        String slug = toSlug(input);
+        if (slug == null || slug.isBlank()) {
+            return "SAN-PHAM";
+        }
+        // Giới hạn độ dài slug tối đa 40 ký tự để mã SKU không bị quá dài
+        if (slug.length() > 40) {
+            slug = slug.substring(0, 40).replaceAll("-$", "");
+        }
+        return slug.toUpperCase();
+    }
 }

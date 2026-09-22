@@ -8,6 +8,7 @@ public class ProductUnitResponseDTO {
     private UnitResponseDTO unit;
     private String sku;
     private String barcode;
+    private String imageUrl;
     private Double exchangeValue;
     private BigDecimal price;
     private Boolean isBaseUnit;

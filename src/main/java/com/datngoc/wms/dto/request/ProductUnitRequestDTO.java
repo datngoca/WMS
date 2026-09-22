@@ -3,19 +3,20 @@ package com.datngoc.wms.dto.request;
 import java.math.BigDecimal;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class ProductUnitRequestDTO {
 
-    @Schema(description = "Mã SKU ")
-    @NotBlank (message = "SKU không được để trống")
+    @Schema(description = "Mã SKU đơn vị (để trống nếu muốn tự sinh)")
     private String sku;
 
     @Schema(description = "Mã vạch ")
     private String barcode;
+
+    @Schema(description = "Ảnh đại diện quy cách")
+    private String imageUrl;
 
     @Schema(description = "Id của bảng Unit ")
     @NotNull(message = "Unit ID không được để trống")

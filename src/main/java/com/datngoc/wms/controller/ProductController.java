@@ -1,6 +1,7 @@
 package com.datngoc.wms.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -37,6 +38,18 @@ public class ProductController {
         private final MessageSource messageSource;
         private final ProductService productService;
         private final ProductMapper productMapper;
+
+        @Operation(summary = "Tự động sinh mã SKU theo tên sản phẩm", description = "API trả về mã SKU tiếp theo theo định dạng SP-(slug)-00001")
+        @GetMapping("/generate-sku")
+        public ApiResponseDTO<Map<String, String>> generateSku(
+                        @RequestParam(required = false, defaultValue = "") String name) {
+                String sku = productService.generateSku(name);
+                return ApiResponseDTO.<Map<String, String>>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message("Tạo mã SKU thành công")
+                                .data(Map.of("sku", sku))
+                                .build();
+        }
 
         @Operation(summary = "Tạo sản phẩm", description = "API dùng để tạo sản phẩm")
         @ApiResponses(value = {
@@ -76,7 +89,8 @@ public class ProductController {
                                 .code(SuccessCode.GET_SUCCESS.name())
                                 .message(msg)
                                 .data(products)
-                                .meta(new ApiResponseDTO.Meta((int) productPage.getNumber() + 1, (int) productPage.getSize(),
+                                .meta(new ApiResponseDTO.Meta((int) productPage.getNumber() + 1,
+                                                (int) productPage.getSize(),
                                                 (int) productPage.getTotalElements()))
                                 .build();
         }
@@ -89,14 +103,14 @@ public class ProductController {
         })
         @GetMapping("/{id}")
         public ApiResponseDTO<ProductResponseDTO> getProductById(@PathVariable("id") Long id) {
-                Product product = productService.getProductById(id);
+                ProductResponseDTO product = productService.getProductById(id);
                 String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
                                 LocaleContextHolder.getLocale());
 
                 return ApiResponseDTO.<ProductResponseDTO>builder()
                                 .code(SuccessCode.GET_SUCCESS.name())
                                 .message(msg)
-                                .data(productMapper.toDto(product))
+                                .data(product)
                                 .build();
         }
 

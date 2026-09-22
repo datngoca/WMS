@@ -14,8 +14,7 @@ import com.datngoc.wms.entity.json.ProductSpec;
 
 @Data
 public class ProductRequestDTO {
-    @Schema(description = "Mã SKU sản phẩm")
-    @NotBlank(message = "SKU không được để trống")
+    @Schema(description = "Mã SKU sản phẩm (để trống nếu muốn tự sinh theo định dạng SP-{slug}-00001)")
     private String sku;
 
     @Schema(description = "Tên sản phẩm")
@@ -29,8 +28,10 @@ public class ProductRequestDTO {
     @Schema(description = "Mô tả sản phẩm")
     private String description;
 
+    @Schema(description = "Ảnh đại diện sản phẩm")
+    private String imageUrl;
+
     @Schema(description = "Đơn vị sản phẩm")
-    @NotEmpty(message = "Đơn vị sản phẩm không được để trống")
     private List<ProductUnitRequestDTO> productUnits;
 
     @Schema(description = "Thông số nổi bật")

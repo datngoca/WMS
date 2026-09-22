@@ -13,4 +13,5 @@ public interface ProductUnitMapper {
     ProductUnit toEntity(ProductUnitRequestDTO requestDTO);
 
     void updateEntityFromDTO(ProductUnitRequestDTO requestDTO, @MappingTarget ProductUnit productUnit);
+
 }

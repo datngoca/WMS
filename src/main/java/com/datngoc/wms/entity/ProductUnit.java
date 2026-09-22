@@ -17,6 +17,9 @@ public class ProductUnit extends BaseEntity {
 
     private String barcode;
 
+    @Column(name = "image_url", length = 1000)
+    private String imageUrl;
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;

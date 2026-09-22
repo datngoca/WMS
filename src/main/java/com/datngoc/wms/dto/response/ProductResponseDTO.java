@@ -1,5 +1,6 @@
 package com.datngoc.wms.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -17,8 +18,11 @@ public class ProductResponseDTO {
     private String name;
     private Set<CategoryRef> categories;
     private String description;
+    private String imageUrl;
     private List<ProductSpec> specs;
     private List<ProductDetailedSpec> detailedSpecs;
     private List<ProductOptionDTO> options;
     private List<ProductUnitResponseDTO> productUnits;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

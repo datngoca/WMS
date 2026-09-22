@@ -8,7 +8,7 @@ import com.datngoc.wms.dto.response.ProductResponseDTO;
 import com.datngoc.wms.entity.Category;
 import com.datngoc.wms.entity.Product;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {ProductUnitMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProductMapper {
 
     @Mapping(target = "productUnits", ignore = true)
