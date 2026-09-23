@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,13 +59,35 @@ public class CategoryController {
                 .build();
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping ("/{id}")
     @Operation(summary = "Cập nhật danh mục", description = "API dùng để cập nhật danh mục")
-    public ApiResponseDTO<Void> updateCategory(@PathVariable Long id, @RequestBody CategoryRequestDTO categoryRequest) {
-        categoryService.updateCategory(id, categoryRequest);
+    public ApiResponseDTO<CategoryResponseDTO> updateCategory(@PathVariable Long id, @RequestBody CategoryRequestDTO categoryRequest) {
+        CategoryResponseDTO updateCategory = categoryService.updateCategory(id, categoryRequest);
+        return ApiResponseDTO.<CategoryResponseDTO>builder()
+                .code(SuccessCode.UPDATE_SUCCESS.name())
+                .message(SuccessCode.UPDATE_SUCCESS.getMessageKey())
+                .data(updateCategory)
+                .build();
+    }
+
+    @PatchMapping("/{id}/open")
+    @Operation(summary = "Cập nhật trạng thái mở/đóng danh mục", description = "API dùng để cập nhật trạng thái open hoặc close của danh mục")
+    public ApiResponseDTO<Void> updateCategoryOpen(@PathVariable Long id, @RequestBody(required = false) Boolean isOpen) {
+        categoryService.updateCategoryOpen(id, isOpen);
         return ApiResponseDTO.<Void>builder()
                 .code(SuccessCode.UPDATE_SUCCESS.name())
                 .message(SuccessCode.UPDATE_SUCCESS.getMessageKey())
+                .build();
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Lấy danh mục", description = "API dùng để lấy 1 danh mục")
+    public ApiResponseDTO<CategoryResponseDTO> getCategory(@PathVariable Long id) {
+        CategoryResponseDTO category = categoryService.getCategoryById(id);
+        return ApiResponseDTO.<CategoryResponseDTO>builder()
+                .code(SuccessCode.GET_SUCCESS.name())
+                .message(SuccessCode.GET_SUCCESS.getMessageKey())
+                .data(category)
                 .build();
     }
 

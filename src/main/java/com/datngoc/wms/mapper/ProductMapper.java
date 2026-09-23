@@ -2,46 +2,47 @@ package com.datngoc.wms.mapper;
 
 import org.mapstruct.*;
 
-import com.datngoc.wms.dto.common.ParentCategory;
+import com.datngoc.wms.dto.common.CategoryRef;
 import com.datngoc.wms.dto.request.ProductRequestDTO;
 import com.datngoc.wms.dto.response.ProductResponseDTO;
 import com.datngoc.wms.entity.Category;
 import com.datngoc.wms.entity.Product;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {ProductUnitMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProductMapper {
 
+    @Mapping(target = "productUnits", ignore = true)
     @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategoryToEntity")
     Product toEntity(ProductRequestDTO dto);
 
     @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategoryToDto")
     ProductResponseDTO toDto(Product product);
 
+    @Mapping(target = "productUnits", ignore = true)
     @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategoryToEntity")
     void updateEntityFromDTO(ProductRequestDTO dto, @MappingTarget Product entity);
 
-    // ProductResponseDTO toDto(Product product);
-
     @Named("mapCategoryToDto")
-    default ParentCategory mapCategory(Category category) {
+    default CategoryRef mapCategoryToDto(Category category) {
         if (category == null) {
             return null;
         }
-        ParentCategory parentCategory = new ParentCategory();
-        parentCategory.setId(category.getId());
-        parentCategory.setName(category.getName());
-        return parentCategory;
+        CategoryRef categoryRef = new CategoryRef();
+        categoryRef.setId(category.getId());
+        categoryRef.setName(category.getName());
+        return categoryRef;
     }
 
     @Named("mapCategoryToEntity")
-    default Category mapCategory(ParentCategory parentCategory) {
-        if (parentCategory == null) {
+    default Category mapCategoryToEntity(Long id) {
+        if (id == null) {
             return null;
         }
         Category category = new Category();
-        category.setId(parentCategory.getId());
+        category.setId(id);
         return category;
     }
+
     @AfterMapping
     default void linkProductOptions(@MappingTarget Product product) {
         if (product.getOptions() != null) {

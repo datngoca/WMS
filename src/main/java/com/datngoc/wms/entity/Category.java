@@ -29,6 +29,8 @@ public class Category extends BaseEntity {
 
     private Integer depth; // Độ sâu
 
+    private Boolean isOpen = false;
+
     @ManyToMany(mappedBy = "categories")
     @JsonIgnore
     private Set<Product> products = new HashSet<>();

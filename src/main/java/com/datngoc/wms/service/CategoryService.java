@@ -15,7 +15,7 @@ import com.datngoc.wms.exception.ErrorCode;
 import com.datngoc.wms.mapper.CategoryMapper;
 import com.datngoc.wms.repository.CategoryRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,13 +28,16 @@ public class CategoryService {
     @Transactional
     public Category createCategory(CategoryRequestDTO categoryRequest) {
         Category category = categoryMapper.toEntity(categoryRequest);
-        if (categoryRequest.getParent() != null) {
-            Category parent = categoryRepository.findById(categoryRequest.getParent().getId())
+        if (categoryRequest.getParentId() != null) {
+            Category parent = categoryRepository.findById(categoryRequest.getParentId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
             category.setParent(parent);
         }
         if (categoryRepository.existsByName(categoryRequest.getName())) {
             throw new BusinessException(ErrorCode.CATEGORY_ALREADY_EXISTS, categoryRequest.getName());
+        }
+        if (categoryRequest.getIsOpen() != null) {
+            category.setIsOpen(categoryRequest.getIsOpen());
         }
         return categoryRepository.save(category);
     }
@@ -56,6 +59,7 @@ public class CategoryService {
         updateCategoryHierarchy(category, newParent);
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryResponseDTO> getCategoryTree() {
         // Get all category from Database
         List<Category> categories = categoryRepository.findAll();
@@ -83,6 +87,26 @@ public class CategoryService {
         return roots;
     }
 
+    @Transactional(readOnly = true)
+    public CategoryResponseDTO getCategoryById(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+        return categoryMapper.toDTO(category);
+    }
+
+    @Transactional
+    public void updateCategoryOpen(Long id, Boolean isOpen) {
+        int updated;
+        if (isOpen != null) {
+            updated = categoryRepository.updateIsOpen(id, isOpen);
+        } else {
+            updated = categoryRepository.toggleIsOpen(id);
+        }
+        if (updated == 0) {
+            throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
+    }
+
     @Transactional
     public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO categoryRequest) {
         Category category = categoryRepository.findById(id)
@@ -95,10 +119,13 @@ public class CategoryService {
         }
         category.setName(categoryRequest.getName());
         category.setDescription(categoryRequest.getDescription());
+        if (categoryRequest.getIsOpen() != null) {
+            category.setIsOpen(categoryRequest.getIsOpen());
+        }
 
         // 2. Nếu đổi danh mục cha
         Long currentParentId = category.getParent() != null ? category.getParent().getId() : null;
-        Long newParentId = categoryRequest.getParent().getId();
+        Long newParentId = categoryRequest.getParentId() != null ? categoryRequest.getParentId() : null;
 
         category = categoryRepository.save(category); // Lưu lại thông tin cơ bản trước
 
@@ -115,6 +142,7 @@ public class CategoryService {
         return categoryMapper.toDTO(category);
     }
 
+    @Transactional
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import com.datngoc.wms.dto.request.UnitRequestDTO;
@@ -23,57 +24,75 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Units", description = "Quản lý đơn vị tính")
 public class UnitController {
 
-    private final UnitService unitService;
-    private final MessageSource messageSource;
+        private final UnitService unitService;
+        private final MessageSource messageSource;
 
-    @PostMapping
-    @Operation(summary = "Tạo đơn vị tính mới", description = "Tạo đơn vị tính mới")
-    public ApiResponseDTO<Unit> createUnit(@Valid @RequestBody UnitRequestDTO unitRequest) {
-        Unit createdUnit = unitService.createUnit(unitRequest);
-        String msg = messageSource.getMessage(SuccessCode.CREATE_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<Unit>builder()
-                .code(SuccessCode.CREATE_SUCCESS.name())
-                .message(msg)
-                .data(createdUnit)
-                .build();
-    }
+        @PostMapping
+        @Operation(summary = "Tạo đơn vị tính mới", description = "Tạo đơn vị tính mới")
+        public ApiResponseDTO<Unit> createUnit(@Valid @RequestBody UnitRequestDTO unitRequest) {
+                Unit createdUnit = unitService.createUnit(unitRequest);
+                String msg = messageSource.getMessage(SuccessCode.CREATE_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<Unit>builder()
+                                .code(SuccessCode.CREATE_SUCCESS.name())
+                                .message(msg)
+                                .data(createdUnit)
+                                .build();
+        }
 
-    @GetMapping
-    @Operation(summary = "Lấy danh sách đơn vị tính", description = "Lấy danh sách đơn vị tính")
-    public ApiResponseDTO<List<Unit>> getAllUnits() {
-        List<Unit> units = unitService.getAllUnits();
-        String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<List<Unit>>builder()
-                .code(SuccessCode.GET_SUCCESS.name())
-                .message(msg)
-                .data(units)
-                .build();
-    }
+        @GetMapping
+        @Operation(summary = "Lấy danh sách đơn vị tính", description = "Lấy danh sách đơn vị tính")
+        public ApiResponseDTO<List<Unit>> getAllUnits(
+                        @RequestParam(defaultValue = "1") int page,
+                        @RequestParam(defaultValue = "10") int size) {
+                Page<Unit> unitsPage = unitService.getAllUnits(page, size);
+                List<Unit> units = unitsPage.getContent();
+                String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<List<Unit>>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message(msg)
+                                .meta(new ApiResponseDTO.Meta(unitsPage.getNumber() + 1, unitsPage.getSize(),
+                                                (int) unitsPage.getTotalElements()))
+                                .data(units)
+                                .build();
+        }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Cập nhật đơn vị tính", description = "Cập nhật đơn vị tính")
-    public ApiResponseDTO<Unit> updateUnit(@PathVariable Long id, @Valid @RequestBody UnitRequestDTO unitRequest) {
-        Unit updatedUnit = unitService.updateUnit(id, unitRequest);
-        String msg = messageSource.getMessage(SuccessCode.UPDATE_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<Unit>builder()
-                .code(SuccessCode.UPDATE_SUCCESS.name())
-                .message(msg)
-                .data(updatedUnit)
-                .build();
-    }
+        @GetMapping("/{id}")
+        @Operation(summary = "Lấy đơn vị tính theo id", description = "Lấy đơn vị tính theo id")
+        public ApiResponseDTO<Unit> getUnitById(@PathVariable Long id) {
+                Unit unit = unitService.getUnitById(id);
+                String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<Unit>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message(msg)
+                                .data(unit)
+                                .build();
+        }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Xóa đơn vị tính", description = "Xóa đơn vị tính")
-    public ApiResponseDTO<Void> deleteUnit(@PathVariable Long id) {
-        unitService.deleteUnit(id);
-        String msg = messageSource.getMessage(SuccessCode.DELETE_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<Void>builder()
-                .code(SuccessCode.DELETE_SUCCESS.name())
-                .message(msg)
-                .build();
-    }
+        @PutMapping("/{id}")
+        @Operation(summary = "Cập nhật đơn vị tính", description = "Cập nhật đơn vị tính")
+        public ApiResponseDTO<Unit> updateUnit(@PathVariable Long id, @Valid @RequestBody UnitRequestDTO unitRequest) {
+                Unit updatedUnit = unitService.updateUnit(id, unitRequest);
+                String msg = messageSource.getMessage(SuccessCode.UPDATE_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<Unit>builder()
+                                .code(SuccessCode.UPDATE_SUCCESS.name())
+                                .message(msg)
+                                .data(updatedUnit)
+                                .build();
+        }
+
+        @DeleteMapping("/{id}")
+        @Operation(summary = "Xóa đơn vị tính", description = "Xóa đơn vị tính")
+        public ApiResponseDTO<Void> deleteUnit(@PathVariable Long id) {
+                unitService.deleteUnit(id);
+                String msg = messageSource.getMessage(SuccessCode.DELETE_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<Void>builder()
+                                .code(SuccessCode.DELETE_SUCCESS.name())
+                                .message(msg)
+                                .build();
+        }
 }

@@ -1,9 +1,11 @@
 package com.datngoc.wms.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.datngoc.wms.dto.request.ProductRequestDTO;
@@ -35,6 +38,18 @@ public class ProductController {
         private final MessageSource messageSource;
         private final ProductService productService;
         private final ProductMapper productMapper;
+
+        @Operation(summary = "Tự động sinh mã SKU theo tên sản phẩm", description = "API trả về mã SKU tiếp theo theo định dạng SP-(slug)-00001")
+        @GetMapping("/generate-sku")
+        public ApiResponseDTO<Map<String, String>> generateSku(
+                        @RequestParam(required = false, defaultValue = "") String name) {
+                String sku = productService.generateSku(name);
+                return ApiResponseDTO.<Map<String, String>>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message("Tạo mã SKU thành công")
+                                .data(Map.of("sku", sku))
+                                .build();
+        }
 
         @Operation(summary = "Tạo sản phẩm", description = "API dùng để tạo sản phẩm")
         @ApiResponses(value = {
@@ -62,8 +77,11 @@ public class ProductController {
                         @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
         })
         @GetMapping
-        public ApiResponseDTO<List<ProductResponseDTO>> getAllProduct() {
-                List<ProductResponseDTO> products = productService.getAllProducts();
+        public ApiResponseDTO<List<ProductResponseDTO>> getAllProduct(
+                        @RequestParam(defaultValue = "1") int page,
+                        @RequestParam(defaultValue = "5") int size) {
+                Page<ProductResponseDTO> productPage = productService.getAllProducts(page, size);
+                List<ProductResponseDTO> products = productPage.getContent();
                 String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
                                 LocaleContextHolder.getLocale());
 
@@ -71,6 +89,9 @@ public class ProductController {
                                 .code(SuccessCode.GET_SUCCESS.name())
                                 .message(msg)
                                 .data(products)
+                                .meta(new ApiResponseDTO.Meta((int) productPage.getNumber() + 1,
+                                                (int) productPage.getSize(),
+                                                (int) productPage.getTotalElements()))
                                 .build();
         }
 
@@ -82,14 +103,14 @@ public class ProductController {
         })
         @GetMapping("/{id}")
         public ApiResponseDTO<ProductResponseDTO> getProductById(@PathVariable("id") Long id) {
-                Product product = productService.getProductById(id);
+                ProductResponseDTO product = productService.getProductById(id);
                 String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
                                 LocaleContextHolder.getLocale());
 
                 return ApiResponseDTO.<ProductResponseDTO>builder()
                                 .code(SuccessCode.GET_SUCCESS.name())
                                 .message(msg)
-                                .data(productMapper.toDto(product))
+                                .data(product)
                                 .build();
         }
 
@@ -128,6 +149,25 @@ public class ProductController {
                 return ApiResponseDTO.<Void>builder()
                                 .code(SuccessCode.DELETE_SUCCESS.name())
                                 .message(msg)
+                                .build();
+        }
+
+        @Operation(summary = "Lấy sản phẩm theo danh mục", description = "API dùng để lấy sản phẩm theo danh mục")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Lấy sản phẩm thành công"),
+                        @ApiResponse(responseCode = "400", description = "Dữ liệu gửi lên không hợp lệ"),
+                        @ApiResponse(responseCode = "404", description = "Không tìm thấy sản phẩm")
+        })
+        @GetMapping("/category/{slug}")
+        public ApiResponseDTO<List<ProductResponseDTO>> getProductsBySlug(@PathVariable("slug") String slug) {
+                List<ProductResponseDTO> products = productService.getProductsBySlug(slug);
+                String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+
+                return ApiResponseDTO.<List<ProductResponseDTO>>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message(msg)
+                                .data(products)
                                 .build();
         }
 

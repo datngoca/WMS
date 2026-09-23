@@ -17,11 +17,7 @@ public class StockMovement extends BaseEntity {
     // @ManyToOne(fetch = FetchType.LAZY)
     // @JoinColumn(name = "order_id", nullable = true)
     // private orderId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "warehouse_id", nullable = false)
-    private Warehouse warehouse;
-
+    
     private Integer quantity;
 
     @Enumerated(EnumType.STRING)

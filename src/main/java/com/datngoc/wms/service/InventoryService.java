@@ -1,19 +1,21 @@
 package com.datngoc.wms.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.datngoc.wms.dto.response.InventoryResponseDTO;
 import com.datngoc.wms.entity.Inventory;
 import com.datngoc.wms.entity.MovementType;
 import com.datngoc.wms.entity.Product;
 import com.datngoc.wms.entity.StockMovement;
-import com.datngoc.wms.entity.Warehouse;
 import com.datngoc.wms.exception.BusinessException;
 import com.datngoc.wms.exception.ErrorCode;
 import com.datngoc.wms.repository.InventoryRepository;
 import com.datngoc.wms.repository.ProductRepository;
 import com.datngoc.wms.repository.StockMovementRepository;
-import com.datngoc.wms.repository.WarehouseRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,24 +26,37 @@ public class InventoryService {
         private final InventoryRepository inventoryRepository;
         private final StockMovementRepository stockMovementRepository;
         private final ProductRepository productRepository;
-        private final WarehouseRepository warehouseRepository;
+
+        // Lấy danh sách tồn kho phân trang
+        @Transactional(readOnly = true)
+        public Page<InventoryResponseDTO> getAllInventories(int page, int size) {
+                Pageable pageable = PageRequest.of(page - 1, size);
+                return inventoryRepository.findAllWithProduct(pageable).map(inv -> {
+                        Product p = inv.getProduct();
+                        return InventoryResponseDTO.builder()
+                                        .id(inv.getId())
+                                        .productId(p != null ? p.getId() : null)
+                                        .productName(p != null ? p.getName() : null)
+                                        .productSku(p != null ? p.getSku() : null)
+                                        .productImageUrl(p != null ? p.getImageUrl() : null)
+                                        .quantity(inv.getQuantity())
+                                        .updatedAt(inv.getUpdatedAt() != null ? inv.getUpdatedAt() : inv.getCreatedAt())
+                                        .build();
+                });
+        }
 
         // Logic nhập kho
         @Transactional
-        public void addStock(Long productId, Long warehouseId, Integer quantity, String reason) {
-                // B1: Kiểm tra Product và Warehouse có tồn tại không
+        public Inventory addStock(Long productId, Integer quantity, String reason) {
+                // B1: Kiểm tra Product có tồn tại không
                 Product product = productRepository.findById(productId)
                                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
-                Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                                .orElseThrow(() -> new BusinessException(ErrorCode.WAREHOUSE_NOT_FOUND));
-
-                // B2: Kiểm tra xem sản phẩm này đã có bản ghi trong kho này chưa
-                Inventory inventory = inventoryRepository.findByProductIdAndWarehouseId(productId, warehouseId)
+                // B2: Kiểm tra xem sản phẩm này đã có bản ghi trong kho chưa
+                Inventory inventory = inventoryRepository.findByProductId(productId)
                                 .orElseGet(() -> {
                                         Inventory newInv = new Inventory();
                                         newInv.setProduct(product);
-                                        newInv.setWarehouse(warehouse);
                                         newInv.setQuantity(0);
                                         return newInv;
                                 });
@@ -50,31 +65,30 @@ public class InventoryService {
                 inventory.setQuantity(quantity + inventory.getQuantity());
 
                 // B4: Lưu Inventory
-                inventoryRepository.save(inventory);
+                Inventory savedInventory = inventoryRepository.save(inventory);
 
                 // B5 : Tạo StockMovement
                 StockMovement movement = new StockMovement();
                 movement.setType(MovementType.INBOUND);
-                movement.setWarehouse(warehouse);
                 movement.setQuantity(quantity);
                 movement.setProduct(product);
                 movement.setReason(reason);
                 stockMovementRepository.save(movement);
+
+                return savedInventory;
         }
 
         // Logic xuất kho
-        public void removeStock(Long productId, Long warehouseId, Integer quantity, String reason) {
-                // B1: Kiểm tra Product và Warehouse có tồn tại không
+        @Transactional
+        public Inventory removeStock(Long productId, Integer quantity, String reason) {
+                // B1: Kiểm tra Product có tồn tại không
                 Product product = productRepository.findById(productId)
                                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
-                Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                                .orElseThrow(() -> new BusinessException(ErrorCode.WAREHOUSE_NOT_FOUND));
-
                 // B2: Tìm Inventory tương ứng
-                Inventory inventory = inventoryRepository.findByProductIdAndWarehouseId(productId, warehouseId)
+                Inventory inventory = inventoryRepository.findByProductId(productId)
                                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_IN_WAREHOUSE,
-                                                product.getName(), warehouse.getName()));
+                                                product.getName()));
 
                 // B3: Kiểm tra số lượng tồn
                 if (inventory.getQuantity() < quantity) {
@@ -84,15 +98,16 @@ public class InventoryService {
 
                 // B4: Trừ số lượng
                 inventory.setQuantity(inventory.getQuantity() - quantity);
-                inventoryRepository.save(inventory);
+                Inventory savedInventory = inventoryRepository.save(inventory);
 
                 // B5: Tạo bản ghi StockMovement
                 StockMovement stockMovement = new StockMovement();
                 stockMovement.setType(MovementType.OUTBOUND);
                 stockMovement.setProduct(product);
-                stockMovement.setWarehouse(warehouse);
                 stockMovement.setQuantity(quantity);
                 stockMovement.setReason(reason);
                 stockMovementRepository.save(stockMovement);
+
+                return savedInventory;
         }
 }

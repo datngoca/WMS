@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.datngoc.wms.dto.request.AdminUserRequest;
@@ -28,71 +30,77 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Tag(name = "User", description = "Các API liên quan đến User")
 public class UserController {
-    private final MessageSource messageSource;
-    private final UserService userService;
+        private final MessageSource messageSource;
+        private final UserService userService;
 
-    @Operation(summary = "Tạo người dùng mới", description = "API dùng để tạo người dùng mới (Admin)")
-    @PostMapping
-    public ApiResponseDTO<AdminUserResponseDTO> createUser(@RequestBody AdminUserRequest request) {
-        AdminUserResponseDTO createdUser = userService.createUser(request);
+        @Operation(summary = "Tạo người dùng mới", description = "API dùng để tạo người dùng mới (Admin)")
+        @PostMapping
+        public ApiResponseDTO<AdminUserResponseDTO> createUser(@RequestBody AdminUserRequest request) {
+                AdminUserResponseDTO createdUser = userService.createUser(request);
 
-        String msg = messageSource.getMessage(SuccessCode.CREATE_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<AdminUserResponseDTO>builder()
-                .code(SuccessCode.CREATE_SUCCESS.name())
-                .message(msg)
-                .data(createdUser)
-                .build();
-    }
+                String msg = messageSource.getMessage(SuccessCode.CREATE_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<AdminUserResponseDTO>builder()
+                                .code(SuccessCode.CREATE_SUCCESS.name())
+                                .message(msg)
+                                .data(createdUser)
+                                .build();
+        }
 
-    @Operation(summary = "Cập nhật thông tin người dùng", description = "API dùng để cập nhật thông tin người dùng (Admin)")
-    @PutMapping("/{id}")
-    public ApiResponseDTO<AdminUserResponseDTO> updateUser(@PathVariable("id") Long id, @RequestBody AdminUserRequest request) {
-        AdminUserResponseDTO updatedUser = userService.updateUser(id, request);
-        String msg = messageSource.getMessage(SuccessCode.UPDATE_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<AdminUserResponseDTO>builder()
-                .code(SuccessCode.UPDATE_SUCCESS.name())
-                .message(msg)
-                .data(updatedUser)
-                .build();
-    }
+        @Operation(summary = "Cập nhật thông tin người dùng", description = "API dùng để cập nhật thông tin người dùng (Admin)")
+        @PutMapping("/{id}")
+        public ApiResponseDTO<AdminUserResponseDTO> updateUser(@PathVariable("id") Long id,
+                        @RequestBody AdminUserRequest request) {
+                AdminUserResponseDTO updatedUser = userService.updateUser(id, request);
+                String msg = messageSource.getMessage(SuccessCode.UPDATE_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<AdminUserResponseDTO>builder()
+                                .code(SuccessCode.UPDATE_SUCCESS.name())
+                                .message(msg)
+                                .data(updatedUser)
+                                .build();
+        }
 
-    @Operation(summary = "Xóa người dùng", description = "API dùng để xóa người dùng (Admin)")
-    @DeleteMapping("/{id}")
-    public ApiResponseDTO<Void> deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
-        String msg = messageSource.getMessage(SuccessCode.DELETE_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<Void>builder()
-                .code(SuccessCode.DELETE_SUCCESS.name())
-                .message(msg)
-                .build();
-    }
+        @Operation(summary = "Xóa người dùng", description = "API dùng để xóa người dùng (Admin)")
+        @DeleteMapping("/{id}")
+        public ApiResponseDTO<Void> deleteUser(@PathVariable("id") Long id) {
+                userService.deleteUser(id);
+                String msg = messageSource.getMessage(SuccessCode.DELETE_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<Void>builder()
+                                .code(SuccessCode.DELETE_SUCCESS.name())
+                                .message(msg)
+                                .build();
+        }
 
-    @Operation(summary = "Lấy thông tin người dùng theo ID", description = "API dùng để lấy thông tin người dùng theo ID (Admin)")
-    @GetMapping("/{id}")
-    public ApiResponseDTO<AdminUserResponseDTO> getUserById(@PathVariable("id") Long id) {
-        AdminUserResponseDTO user = userService.getUserById(id);
-        String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<AdminUserResponseDTO>builder()
-                .code(SuccessCode.GET_SUCCESS.name())
-                .message(msg)
-                .data(user)
-                .build();
-    }
+        @Operation(summary = "Lấy thông tin người dùng theo ID", description = "API dùng để lấy thông tin người dùng theo ID (Admin)")
+        @GetMapping("/{id}")
+        public ApiResponseDTO<AdminUserResponseDTO> getUserById(@PathVariable("id") Long id) {
+                AdminUserResponseDTO user = userService.getUserById(id);
+                String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<AdminUserResponseDTO>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message(msg)
+                                .data(user)
+                                .build();
+        }
 
-    @Operation(summary = "Lấy danh sách tất cả người dùng", description = "API dùng để lấy danh sách tất cả người dùng (Admin)")
-    @GetMapping
-    public ApiResponseDTO<List<AdminUserResponseDTO>> getAllUsers() {
-        List<AdminUserResponseDTO> users = userService.getAllUsers();
-        String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
-                LocaleContextHolder.getLocale());
-        return ApiResponseDTO.<List<AdminUserResponseDTO>>builder()
-                .code(SuccessCode.GET_SUCCESS.name())
-                .message(msg)
-                .data(users)
-                .build();
-    }
+        @Operation(summary = "Lấy danh sách tất cả người dùng", description = "API dùng để lấy danh sách tất cả người dùng (Admin)")
+        @GetMapping()
+        public ApiResponseDTO<List<AdminUserResponseDTO>> getAllUsers(
+                        @RequestParam(defaultValue = "1") int page,
+                        @RequestParam(defaultValue = "5") int size) {
+                Page<AdminUserResponseDTO> userPage = userService.getAllUsers(page, size);
+                List<AdminUserResponseDTO> users = userPage.getContent();
+                String msg = messageSource.getMessage(SuccessCode.GET_SUCCESS.getMessageKey(), null,
+                                LocaleContextHolder.getLocale());
+                return ApiResponseDTO.<List<AdminUserResponseDTO>>builder()
+                                .code(SuccessCode.GET_SUCCESS.name())
+                                .message(msg)
+                                .meta(new ApiResponseDTO.Meta((int) userPage.getNumber() + 1, (int) userPage.getSize(),
+                                                (int) userPage.getTotalElements()))
+                                .data(users)
+                                .build();
+        }
 }
